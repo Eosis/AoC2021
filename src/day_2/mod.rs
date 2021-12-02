@@ -9,9 +9,37 @@ pub enum Instruction {
 }
 
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
-struct Position {
-    horizontal: usize,
-    depth: usize
+struct Sub {
+    horizontal: i32,
+    depth: i32,
+    aim: i32,
+}
+
+impl Sub {
+    fn go_forward(sub: Self, amount: usize) -> Self {
+        Sub {
+            horizontal: sub.horizontal + (amount as i32),
+            depth: sub.depth + (sub.aim * (amount as i32)),
+            ..sub
+        }
+    }
+    fn take_direction(sub: Self, direction: Instruction) -> Self{
+        match direction {
+            Instruction::Up(n) => {
+                Sub {
+                    aim: sub.aim - (n as i32),
+                    ..sub
+                }
+            },
+            Instruction::Down(n) => {
+                Sub {
+                    aim: sub.aim + (n as i32),
+                    ..sub
+                }
+            }
+            _ => sub
+        }
+    }
 }
 
 pub fn solve_part_1() -> Result<(), ()> {
@@ -21,10 +49,9 @@ pub fn solve_part_1() -> Result<(), ()> {
 }
 
 pub fn solve_part_2() -> Result<(), ()> {
-    // let vals = get_vals();
-    // println!("Solution: {}", part_two(&vals));
-    // Ok(())
-    unimplemented!()
+    let input = parse_from_file("./inputs/day2.txt");
+    println!("Solution: {}", part_two(input));
+    Ok(())
 }
 
 impl TryFrom<&str> for Instruction {
@@ -68,8 +95,16 @@ pub fn part_one(instructions: Vec<Instruction>) -> usize {
 }
 
 
-fn part_two(vals: &[usize]) -> usize {
-    unimplemented!()
+pub fn part_two(instructions: Vec<Instruction>) -> i32 {
+    let result = instructions
+        .iter()
+        .fold(Sub {aim: 0, depth: 0, horizontal: 0}, |sub, instruction| {
+            match instruction {
+                Instruction::Forward(n) => Sub::go_forward(sub, *n),
+                _ => Sub::take_direction(sub, *instruction),
+            }
+        });
+    result.horizontal * result.depth
 }
 
 #[cfg(test)]
@@ -105,7 +140,7 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        unimplemented!()
+        assert_eq!(part_two(parse_input(&TEST_STRING)), 900)
     }
 
 }
