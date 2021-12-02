@@ -1,4 +1,6 @@
 mod day_1;
+mod day_2;
+
 use argh::FromArgs;
 
 #[derive(FromArgs)]
@@ -20,6 +22,8 @@ fn main() -> Result<()> {
     match (args.day, args.part) {
         (1, 1) => day_1::solve_part_1().expect(FAILURE_TEXT),
         (1, 2) => day_1::solve_part_2().expect(FAILURE_TEXT),
+        (2, 1) => day_2::solve_part_1().expect(FAILURE_TEXT),
+        (2, 2) => day_2::solve_part_2().expect(FAILURE_TEXT),
         (_, _) => unimplemented!("This day no work yet, brah."),
     };
     Ok(())
