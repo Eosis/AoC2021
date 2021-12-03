@@ -2,6 +2,8 @@ use std::fs;
 use std::convert::{TryFrom, TryInto};
 use counter::Counter;
 use std::path::Path;
+use std::hash::Hash;
+use std::cmp::Ordering;
 
 pub fn solve_part_1() -> Result<(), ()> {
     let input = parse_from_file("./inputs/day3.txt");
@@ -24,19 +26,23 @@ fn parse_from_str(input: &str) -> Vec<String> {
     input.lines().filter_map(|s| s.try_into().ok()).collect()
 }
 
-pub fn part_one(instructions: Vec<String>) -> usize {
-    let length = instructions[0].len();
-    let counts: Vec<Counter<_>> = (0..instructions[0].len())
-        .map(|pos|
-            instructions
-                .iter()
-                .map(|item| item.chars().nth(pos).unwrap())
-                .collect()
-        ).collect();
-    let counts: Vec<(_, _)> = counts.iter().map(|count| {
-        let ordered = count.most_common_ordered();
-        (ordered.get(0).unwrap().0, ordered.last().unwrap().0)
-    }).collect();
+fn get_count_at_position(items: &[String], pos: usize) -> Counter<char> {
+    items
+        .iter()
+        .map(|item| item.chars().nth(pos).unwrap())
+        .collect()
+}
+
+fn get_max_and_min_from_counter<T: Copy + Eq + Hash + Ord>(counter: &Counter<T>) -> (T, T) {
+    let ordered = counter.most_common_tiebreaker(|&a, &b| b.cmp(&a));
+    (ordered.get(0).unwrap().0, ordered.last().unwrap().0)
+}
+
+pub fn part_one(items: Vec<String>) -> usize {
+    let counts: Vec<Counter<_>> = (0..items[0].len())
+        .map(|pos| get_count_at_position(&items, pos))
+        .collect();
+    let counts: Vec<(_, _)> = counts.iter().map(|counter| get_max_and_min_from_counter(counter)).collect();
     let mosts_number: String = counts.iter().map(|(b, _)| b).collect();
     let leasts_number: String = counts.iter().map(|(_, b)| b).collect();
     let gamma_number = usize::from_str_radix(&mosts_number, 2).unwrap();
@@ -44,9 +50,31 @@ pub fn part_one(instructions: Vec<String>) -> usize {
     gamma_number * epsilon_number
 }
 
+pub fn part_two(items: Vec<String>) -> usize {
+    let oxygen_number = reduce_list_to_single_element(0, items.clone(), Rating::Oxygen);
+    let carbon_dioxide_number = reduce_list_to_single_element(0, items.clone(), Rating::CarbonDioxide);
+    oxygen_number * carbon_dioxide_number
+}
 
-pub fn part_two(instructions: Vec<String>) -> i32 {
-    unimplemented!()
+pub enum Rating {
+    Oxygen,
+    CarbonDioxide,
+}
+
+pub fn reduce_list_to_single_element(pos: usize, items: Vec<String>, rating: Rating) -> usize {
+    if items.len() == 1 {
+        return usize::from_str_radix(&items[0], 2).unwrap()
+    }
+    let counter = get_count_at_position(&items, pos);
+
+    let (max, min) = get_max_and_min_from_counter(&counter);
+
+    let new_items: Vec<_> = match rating {
+        Rating::Oxygen => items.iter().cloned().filter(|x| x.chars().nth(pos).unwrap() == max).collect(),
+        Rating::CarbonDioxide => items.iter().cloned().filter(|x| x.chars().nth(pos).unwrap() == min).collect(),
+    };
+
+    return reduce_list_to_single_element(pos + 1, new_items, rating)
 }
 
 #[cfg(test)]
@@ -63,7 +91,8 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        unimplemented!()
+        let input = parse_from_str(TEST_INPUT);
+        assert_eq!(part_two(input), 230);
     }
-
+    4203981
 }
