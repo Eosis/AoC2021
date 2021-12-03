@@ -1,5 +1,6 @@
 use std::fs;
 use std::convert::{TryFrom, TryInto};
+use std::path::Path;
 
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub enum Instruction {
@@ -68,12 +69,12 @@ impl TryFrom<&str> for Instruction {
     }
 }
 
-fn parse_from_file(filename: &str) -> Vec<Instruction> {
+fn parse_from_file<T: AsRef<Path>>(filename: T) -> Vec<Instruction> {
     let input = fs::read_to_string(filename).unwrap();
-    parse_input(&input)
+    parse_from_str(&input)
 }
 
-fn parse_input(input: &str) -> Vec<Instruction> {
+fn parse_from_str(input: &str) -> Vec<Instruction> {
     input.lines().filter_map(|s| s.try_into().ok()).collect()
 }
 
@@ -120,7 +121,7 @@ mod tests {
     #[test]
     fn test_parsing() {
         assert_eq!(
-            &parse_input(TEST_STRING),
+            &parse_from_str(TEST_STRING),
             &[
                 Instruction::Forward(5),
                 Instruction::Down(5),
@@ -135,12 +136,12 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        assert_eq!(part_one(parse_input(&TEST_STRING)), (5 + 8 + 2) * (5 - 3 + 8))
+        assert_eq!(part_one(parse_from_str(&TEST_STRING)), (5 + 8 + 2) * (5 - 3 + 8))
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two(parse_input(&TEST_STRING)), 900)
+        assert_eq!(part_two(parse_from_str(&TEST_STRING)), 900)
     }
 
 }
