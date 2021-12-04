@@ -94,5 +94,4 @@ mod tests {
         let input = parse_from_str(TEST_INPUT);
         assert_eq!(part_two(input), 230);
     }
-    4203981
 }

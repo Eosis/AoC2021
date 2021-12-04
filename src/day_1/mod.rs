@@ -56,5 +56,4 @@ mod tests {
     fn test_part_two() {
         assert_eq!(part_two(&TEST_VALS), 5)
     }
-
 }
