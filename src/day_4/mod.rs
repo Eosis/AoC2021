@@ -11,8 +11,8 @@ pub struct Grid {
 
 impl Grid {
     pub fn row_or_column_is_subset_of(&self, to_check: &HashSet<usize>) -> bool {
-        self.columns.iter().find(|column| column.is_subset(to_check)).is_some()
-            || self.rows.iter().find(|row| row.is_subset(to_check)).is_some()
+        self.columns.iter().any(|column| column.is_subset(to_check))
+            || self.rows.iter().any(|row| row.is_subset(to_check))
     }
 
     pub fn calculate_result_from_grid(&self, called: &[usize]) -> usize {
@@ -65,7 +65,7 @@ fn parse_from_str(input: &str) -> (Vec<usize>, Vec<Grid>) {
         .map(|number| number.parse().unwrap())
         .collect();
 
-    let just_grids: Vec<&str> = iter.filter(|line| line.len() != 0).collect();
+    let just_grids: Vec<&str> = iter.filter(|line| !line.is_empty()).collect();
     let grids = just_grids
         .chunks(5)
         .map(|lines| -> Grid {
@@ -96,7 +96,7 @@ pub fn part_two((numbers, grids): (Vec<usize>, Vec<Grid>)) -> usize {
     part_one((numbers, vec![final_grid]))
 }
 
-fn reduce_to_one_grid(all_numbers: &Vec<usize>, position: usize, grids: Vec<Grid>) -> Grid {
+fn reduce_to_one_grid(all_numbers: &[usize], position: usize, grids: Vec<Grid>) -> Grid {
     if grids.len() == 1 {
         return grids.first().unwrap().clone();
     }

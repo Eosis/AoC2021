@@ -52,7 +52,7 @@ pub fn part_one(items: Vec<String>) -> usize {
 
 pub fn part_two(items: Vec<String>) -> usize {
     let oxygen_number = reduce_list_to_single_element(0, items.clone(), Rating::Oxygen);
-    let carbon_dioxide_number = reduce_list_to_single_element(0, items.clone(), Rating::CarbonDioxide);
+    let carbon_dioxide_number = reduce_list_to_single_element(0, items, Rating::CarbonDioxide);
     oxygen_number * carbon_dioxide_number
 }
 
@@ -82,7 +82,7 @@ pub fn reduce_list_to_single_element(pos: usize, items: Vec<String>, rating: Rat
             .collect(),
     };
 
-    return reduce_list_to_single_element(pos + 1, new_items, rating);
+    reduce_list_to_single_element(pos + 1, new_items, rating)
 }
 
 #[cfg(test)]

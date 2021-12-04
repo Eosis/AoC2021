@@ -56,9 +56,9 @@ impl TryFrom<&str> for Instruction {
     fn try_from(line: &str) -> Result<Self, Self::Error> {
         let parts: Vec<_> = line.split_whitespace().collect();
         match &parts[..] {
-            &["forward", n] => Ok(Instruction::Forward(n.parse().unwrap())),
-            &["down", n] => Ok(Instruction::Down(n.parse().unwrap())),
-            &["up", n] => Ok(Instruction::Up(n.parse().unwrap())),
+            ["forward", n] => Ok(Instruction::Forward(n.parse().unwrap())),
+            ["down", n] => Ok(Instruction::Down(n.parse().unwrap())),
+            ["up", n] => Ok(Instruction::Up(n.parse().unwrap())),
             _ => {
                 println!("Didn't parse {:?}", parts);
                 Err(())
