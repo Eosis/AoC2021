@@ -1,5 +1,4 @@
 use hashbrown::HashSet;
-use itertools::Itertools;
 
 use std::fs;
 use std::path::Path;
