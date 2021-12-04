@@ -1,6 +1,6 @@
 use counter::Counter;
-use std::cmp::Ordering;
-use std::convert::{TryFrom, TryInto};
+
+use std::convert::{TryInto};
 use std::fs;
 use std::hash::Hash;
 use std::path::Path;

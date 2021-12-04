@@ -1,6 +1,6 @@
 use hashbrown::HashSet;
 use itertools::Itertools;
-use std::convert::{TryFrom, TryInto};
+
 use std::fs;
 use std::path::Path;
 
@@ -92,7 +92,6 @@ pub fn part_one((numbers, grids): (Vec<usize>, Vec<Grid>)) -> usize {
 }
 
 pub fn part_two((numbers, grids): (Vec<usize>, Vec<Grid>)) -> usize {
-    let initial_pos = 5;
     let final_grid = reduce_to_one_grid(&numbers, 5, grids);
     // Play until the end
     part_one((numbers, vec![final_grid]))
@@ -120,7 +119,7 @@ mod tests {
     #[test]
     #[ignore]
     fn test_parse() {
-        let (numbers, grids) = parse_from_str(TEST_INPUT);
+        let (_numbers, _grids) = parse_from_str(TEST_INPUT);
         print!("{:?}", parse_from_str(TEST_INPUT));
     }
 
