@@ -1,8 +1,8 @@
-use std::fs;
-use std::convert::{TryFrom, TryInto};
-use std::path::Path;
-use itertools::Itertools;
 use hashbrown::HashSet;
+use itertools::Itertools;
+use std::convert::{TryFrom, TryInto};
+use std::fs;
+use std::path::Path;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Grid {
@@ -10,20 +10,15 @@ pub struct Grid {
     rows: Vec<HashSet<usize>>,
 }
 
-
 impl Grid {
     pub fn row_or_column_is_subset_of(&self, to_check: &HashSet<usize>) -> bool {
         self.columns.iter().find(|column| column.is_subset(to_check)).is_some()
-        || self.rows.iter().find(|row| row.is_subset(to_check)).is_some()
+            || self.rows.iter().find(|row| row.is_subset(to_check)).is_some()
     }
 
     pub fn calculate_result_from_grid(&self, called: &[usize]) -> usize {
         let called_set: HashSet<_> = called.iter().copied().collect();
-        let all_in_grid: HashSet<_> = self.rows
-            .iter()
-            .flat_map( |row|
-                row.iter().copied()
-            ).collect();
+        let all_in_grid: HashSet<_> = self.rows.iter().flat_map(|row| row.iter().copied()).collect();
         let remaining: Vec<usize> = all_in_grid.difference(&called_set).copied().collect();
         remaining.iter().sum::<usize>() * called.last().unwrap()
     }
@@ -41,34 +36,32 @@ pub fn solve_part_2() -> Result<(), ()> {
     Ok(())
 }
 
-fn parse_from_file<T: AsRef<Path>>(filename: T) ->  (Vec<usize>, Vec<Grid>) {
+fn parse_from_file<T: AsRef<Path>>(filename: T) -> (Vec<usize>, Vec<Grid>) {
     let input = fs::read_to_string(filename).unwrap();
     parse_from_str(&input)
 }
 
 fn parse_grid_row(line: &str) -> HashSet<usize> {
-    line
-        .split_whitespace()
-        .map(|number| number.parse().unwrap())
-        .collect()
+    line.split_whitespace().map(|number| number.parse().unwrap()).collect()
 }
 
 fn parse_grid_columns(input: &[&str]) -> Vec<HashSet<usize>> {
-    (0..5).map(|i| {
-        input.iter().map(|line| {
-            line
-                .split_whitespace()
-                .nth(i)
-                .unwrap()
-                .parse()
-                .unwrap()
-        }).collect()
-    }).collect()
+    (0..5)
+        .map(|i| {
+            input
+                .iter()
+                .map(|line| line.split_whitespace().nth(i).unwrap().parse().unwrap())
+                .collect()
+        })
+        .collect()
 }
 
 fn parse_from_str(input: &str) -> (Vec<usize>, Vec<Grid>) {
     let mut iter = input.lines();
-    let numbers = iter.by_ref().next().unwrap()
+    let numbers = iter
+        .by_ref()
+        .next()
+        .unwrap()
         .split(',')
         .map(|number| number.parse().unwrap())
         .collect();
@@ -79,11 +72,9 @@ fn parse_from_str(input: &str) -> (Vec<usize>, Vec<Grid>) {
         .map(|lines| -> Grid {
             let rows = lines.iter().map(|line| parse_grid_row(*line)).collect();
             let columns = parse_grid_columns(lines);
-            Grid {
-                rows,
-                columns,
-            }
-        }).collect();
+            Grid { rows, columns }
+        })
+        .collect();
     (numbers, grids)
 }
 
@@ -91,10 +82,10 @@ pub fn part_one((numbers, grids): (Vec<usize>, Vec<Grid>)) -> usize {
     let mut size = 5;
     loop {
         let as_called = &numbers[0..size];
-        let as_set:HashSet<usize> = as_called.iter().copied().collect();
+        let as_set: HashSet<usize> = as_called.iter().copied().collect();
         let result = grids.iter().find(|grid| grid.row_or_column_is_subset_of(&as_set));
         if let Some(grid) = result {
-            break grid.calculate_result_from_grid(as_called)
+            break grid.calculate_result_from_grid(as_called);
         }
         size += 1
     }
@@ -113,7 +104,11 @@ fn reduce_to_one_grid(all_numbers: &Vec<usize>, position: usize, grids: Vec<Grid
     }
     let called = &all_numbers[0..position];
     let as_set: HashSet<usize> = called.iter().copied().collect();
-    let new_grids = grids.iter().filter(|grid| !grid.row_or_column_is_subset_of(&as_set)).cloned().collect();
+    let new_grids = grids
+        .iter()
+        .filter(|grid| !grid.row_or_column_is_subset_of(&as_set))
+        .cloned()
+        .collect();
     reduce_to_one_grid(all_numbers, position + 1, new_grids)
 }
 
@@ -127,9 +122,6 @@ mod tests {
     fn test_parse() {
         let (numbers, grids) = parse_from_str(TEST_INPUT);
         print!("{:?}", parse_from_str(TEST_INPUT));
-        // for grid in &grids {
-        //     print_grid(grid);
-        // }
     }
 
     #[test]

@@ -1,5 +1,5 @@
-use std::fs;
 use std::convert::{TryFrom, TryInto};
+use std::fs;
 use std::path::Path;
 
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
@@ -24,21 +24,17 @@ impl Sub {
             ..sub
         }
     }
-    fn take_direction(sub: Self, direction: Instruction) -> Self{
+    fn take_direction(sub: Self, direction: Instruction) -> Self {
         match direction {
-            Instruction::Up(n) => {
-                Sub {
-                    aim: sub.aim - (n as i32),
-                    ..sub
-                }
+            Instruction::Up(n) => Sub {
+                aim: sub.aim - (n as i32),
+                ..sub
             },
-            Instruction::Down(n) => {
-                Sub {
-                    aim: sub.aim + (n as i32),
-                    ..sub
-                }
-            }
-            _ => sub
+            Instruction::Down(n) => Sub {
+                aim: sub.aim + (n as i32),
+                ..sub
+            },
+            _ => sub,
         }
     }
 }
@@ -58,13 +54,15 @@ pub fn solve_part_2() -> Result<(), ()> {
 impl TryFrom<&str> for Instruction {
     type Error = ();
     fn try_from(line: &str) -> Result<Self, Self::Error> {
-        let parts: Vec<_> = line.split_whitespace()
-            .collect();
+        let parts: Vec<_> = line.split_whitespace().collect();
         match &parts[..] {
             &["forward", n] => Ok(Instruction::Forward(n.parse().unwrap())),
             &["down", n] => Ok(Instruction::Down(n.parse().unwrap())),
             &["up", n] => Ok(Instruction::Up(n.parse().unwrap())),
-            _ => { println!("Didn't parse {:?}", parts);  Err(()) }
+            _ => {
+                println!("Didn't parse {:?}", parts);
+                Err(())
+            }
         }
     }
 }
@@ -81,30 +79,34 @@ fn parse_from_str(input: &str) -> Vec<Instruction> {
 pub fn part_one(instructions: Vec<Instruction>) -> usize {
     let forward: usize = instructions
         .iter()
-        .filter_map( |ins| match ins {
+        .filter_map(|ins| match ins {
             Instruction::Forward(n) => Some(n),
             _ => None,
-        }).sum();
+        })
+        .sum();
     let depth: i32 = instructions
         .iter()
-        .filter_map( |ins| match ins {
+        .filter_map(|ins| match ins {
             Instruction::Down(n) => Some(*n as i32),
             Instruction::Up(n) => Some(-(*n as i32)),
             _ => None,
-        }).sum();
+        })
+        .sum();
     forward * (depth as usize)
 }
 
-
 pub fn part_two(instructions: Vec<Instruction>) -> i32 {
-    let result = instructions
-        .iter()
-        .fold(Sub {aim: 0, depth: 0, horizontal: 0}, |sub, instruction| {
-            match instruction {
-                Instruction::Forward(n) => Sub::go_forward(sub, *n),
-                _ => Sub::take_direction(sub, *instruction),
-            }
-        });
+    let result = instructions.iter().fold(
+        Sub {
+            aim: 0,
+            depth: 0,
+            horizontal: 0,
+        },
+        |sub, instruction| match instruction {
+            Instruction::Forward(n) => Sub::go_forward(sub, *n),
+            _ => Sub::take_direction(sub, *instruction),
+        },
+    );
     result.horizontal * result.depth
 }
 
@@ -133,7 +135,6 @@ mod tests {
         )
     }
 
-
     #[test]
     fn test_part_one() {
         assert_eq!(part_one(parse_from_str(&TEST_STRING)), (5 + 8 + 2) * (5 - 3 + 8))
@@ -143,5 +144,4 @@ mod tests {
     fn test_part_two() {
         assert_eq!(part_two(parse_from_str(&TEST_STRING)), 900)
     }
-
 }

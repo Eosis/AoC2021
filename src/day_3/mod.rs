@@ -1,9 +1,9 @@
-use std::fs;
-use std::convert::{TryFrom, TryInto};
 use counter::Counter;
-use std::path::Path;
-use std::hash::Hash;
 use std::cmp::Ordering;
+use std::convert::{TryFrom, TryInto};
+use std::fs;
+use std::hash::Hash;
+use std::path::Path;
 
 pub fn solve_part_1() -> Result<(), ()> {
     let input = parse_from_file("./inputs/day3.txt");
@@ -27,10 +27,7 @@ fn parse_from_str(input: &str) -> Vec<String> {
 }
 
 fn get_count_at_position(items: &[String], pos: usize) -> Counter<char> {
-    items
-        .iter()
-        .map(|item| item.chars().nth(pos).unwrap())
-        .collect()
+    items.iter().map(|item| item.chars().nth(pos).unwrap()).collect()
 }
 
 fn get_max_and_min_from_counter<T: Copy + Eq + Hash + Ord>(counter: &Counter<T>) -> (T, T) {
@@ -42,7 +39,10 @@ pub fn part_one(items: Vec<String>) -> usize {
     let counts: Vec<Counter<_>> = (0..items[0].len())
         .map(|pos| get_count_at_position(&items, pos))
         .collect();
-    let counts: Vec<(_, _)> = counts.iter().map(|counter| get_max_and_min_from_counter(counter)).collect();
+    let counts: Vec<(_, _)> = counts
+        .iter()
+        .map(|counter| get_max_and_min_from_counter(counter))
+        .collect();
     let mosts_number: String = counts.iter().map(|(b, _)| b).collect();
     let leasts_number: String = counts.iter().map(|(_, b)| b).collect();
     let gamma_number = usize::from_str_radix(&mosts_number, 2).unwrap();
@@ -63,25 +63,32 @@ pub enum Rating {
 
 pub fn reduce_list_to_single_element(pos: usize, items: Vec<String>, rating: Rating) -> usize {
     if items.len() == 1 {
-        return usize::from_str_radix(&items[0], 2).unwrap()
+        return usize::from_str_radix(&items[0], 2).unwrap();
     }
     let counter = get_count_at_position(&items, pos);
 
     let (max, min) = get_max_and_min_from_counter(&counter);
 
     let new_items: Vec<_> = match rating {
-        Rating::Oxygen => items.iter().cloned().filter(|x| x.chars().nth(pos).unwrap() == max).collect(),
-        Rating::CarbonDioxide => items.iter().cloned().filter(|x| x.chars().nth(pos).unwrap() == min).collect(),
+        Rating::Oxygen => items
+            .iter()
+            .cloned()
+            .filter(|x| x.chars().nth(pos).unwrap() == max)
+            .collect(),
+        Rating::CarbonDioxide => items
+            .iter()
+            .cloned()
+            .filter(|x| x.chars().nth(pos).unwrap() == min)
+            .collect(),
     };
 
-    return reduce_list_to_single_element(pos + 1, new_items, rating)
+    return reduce_list_to_single_element(pos + 1, new_items, rating);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     const TEST_INPUT: &str = include_str!("../../test_inputs/day3.txt");
-
 
     #[test]
     fn test_part_one() {

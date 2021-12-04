@@ -19,33 +19,18 @@ pub fn solve_part_2() -> Result<(), ()> {
 }
 
 fn part_one(vals: &[usize]) -> usize {
-    vals.windows(2)
-        .filter(|window| window[1] > window[0])
-        .count()
+    vals.windows(2).filter(|window| window[1] > window[0]).count()
 }
 
 fn part_two(vals: &[usize]) -> usize {
-    let window_vals: Vec<usize> = vals.windows(3)
-        .map(|window| window.iter().sum())
-        .collect();
+    let window_vals: Vec<usize> = vals.windows(3).map(|window| window.iter().sum()).collect();
     part_one(&window_vals)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    const TEST_VALS: [usize; 10] = [
-        199,
-        200,
-        208,
-        210,
-        200,
-        207,
-        240,
-        269,
-        260,
-        263
-    ];
+    const TEST_VALS: [usize; 10] = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
 
     #[test]
     fn test_part_one() {
