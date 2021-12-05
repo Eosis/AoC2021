@@ -73,7 +73,7 @@ fn parse_from_str(input: &str) -> (Vec<usize>, Vec<Grid>) {
             let columns = parse_grid_columns(lines);
             Grid { rows, columns }
         })
-        .collect();
+        .collect::<Vec<_>>();
     (numbers, grids)
 }
 

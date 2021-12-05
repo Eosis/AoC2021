@@ -1,4 +1,3 @@
-
 use std::fs;
 
 fn get_vals() -> Vec<usize> {
