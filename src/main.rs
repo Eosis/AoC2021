@@ -3,11 +3,12 @@ mod day_2;
 mod day_3;
 mod day_4;
 mod day_5;
+mod day_6;
 
 use argh::FromArgs;
 
 #[derive(FromArgs)]
-/// Rup's Advent of Code 2020
+/// Rup's Advent of Code 2021
 struct Args {
     /// day that we are doing the puzzle for.
     #[argh(positional)]
@@ -33,6 +34,8 @@ fn main() -> Result<()> {
         (4, 2) => day_4::solve_part_2().expect(FAILURE_TEXT),
         (5, 1) => day_5::solve_part_1().expect(FAILURE_TEXT),
         (5, 2) => day_5::solve_part_2().expect(FAILURE_TEXT),
+        (6, 1) => day_6::solve_part_1().expect(FAILURE_TEXT),
+        (6, 2) => day_6::solve_part_2().expect(FAILURE_TEXT),
         (_, _) => unimplemented!("This day no work yet, brah."),
     };
     Ok(())
