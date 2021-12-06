@@ -27,8 +27,6 @@ fn parse_from_str(input: &str) -> Input {
     input.split(',').map(|n| n.parse().unwrap()).collect()
 }
 
-
-
 pub fn part_one(input: Input) -> usize {
     count_fish_after(&input, 80)
 }
@@ -49,9 +47,7 @@ fn iterate_dem_fishies(counts: &mut HashMap<usize, usize>) {
 
 fn count_fish_after(input: &[usize], days: usize) -> usize {
     let initial_counts: Counter<usize> = input.iter().copied().collect();
-    let mut counts: HashMap<usize, usize> = (0..9)
-        .map(|n| (n, *initial_counts.get(&n).unwrap_or(&0)))
-        .collect();
+    let mut counts: HashMap<usize, usize> = (0..9).map(|n| (n, *initial_counts.get(&n).unwrap_or(&0))).collect();
     for _ in 0..days {
         iterate_dem_fishies(&mut counts);
     }
@@ -63,7 +59,7 @@ mod tests {
     use super::*;
     use hashbrown::HashSet;
 
-    const TEST_INPUT: [usize; 5] = [3,4,3,1,2];
+    const TEST_INPUT: [usize; 5] = [3, 4, 3, 1, 2];
 
     #[test]
     #[ignore]
