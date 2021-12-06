@@ -1,5 +1,5 @@
 use counter::Counter;
-use std::cmp::{max, min};
+
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -57,7 +57,7 @@ fn count_fish_after(input: &[usize], days: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use hashbrown::HashSet;
+    
 
     const TEST_INPUT: [usize; 5] = [3, 4, 3, 1, 2];
 
