@@ -46,7 +46,8 @@ fn calculate_bigger_cost(position_to_check: usize, crab_positions: &[usize]) -> 
 pub fn part_one(crab_positions: &[usize]) -> usize {
     let min = crab_positions.iter().copied().min().unwrap();
     let max = crab_positions.iter().copied().max().unwrap();
-    (min..=max).map(|position| calculate_cost(position, &crab_positions))
+    (min..=max)
+        .map(|position| calculate_cost(position, &crab_positions))
         .min()
         .unwrap()
 }
@@ -54,7 +55,8 @@ pub fn part_one(crab_positions: &[usize]) -> usize {
 pub fn part_two(crab_positions: &[usize]) -> usize {
     let min = crab_positions.iter().copied().min().unwrap();
     let max = crab_positions.iter().copied().max().unwrap();
-    (min..=max).map(|position| calculate_bigger_cost(position, &crab_positions))
+    (min..=max)
+        .map(|position| calculate_bigger_cost(position, &crab_positions))
         .min()
         .unwrap()
 }
@@ -62,7 +64,7 @@ pub fn part_two(crab_positions: &[usize]) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const TEST_INPUT: [usize; 10] = [16,1,2,0,4,2,7,1,2,14];
+    const TEST_INPUT: [usize; 10] = [16, 1, 2, 0, 4, 2, 7, 1, 2, 14];
 
     #[test]
     fn test_part_one() {
