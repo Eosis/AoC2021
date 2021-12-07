@@ -57,8 +57,6 @@ fn count_fish_after(input: &[usize], days: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
-
     const TEST_INPUT: [usize; 5] = [3, 4, 3, 1, 2];
 
     #[test]
