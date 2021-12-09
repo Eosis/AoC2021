@@ -43,7 +43,7 @@ fn parse_from_str(input: &str) -> Input {
 pub fn part_one(items: &[(Vec<String>, Vec<String>)] )-> usize {
     items
         .iter()
-        .map(|(all, shown)| shown)
+        .map(|(_, shown)| shown)
         .flat_map( |shown| shown.iter().filter(|digit| matches!(digit.len(), 2 | 3 | 4 | 7)))
         .count()
 }
