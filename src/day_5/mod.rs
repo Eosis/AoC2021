@@ -96,12 +96,6 @@ mod tests {
     const TEST_INPUT: &str = include_str!("../../test_inputs/day5.txt");
 
     #[test]
-    #[ignore]
-    fn test_parse() {
-        unimplemented!()
-    }
-
-    #[test]
     fn test_part_one() {
         let input = parse_from_str(TEST_INPUT);
         assert_eq!(part_one(input), 5)
