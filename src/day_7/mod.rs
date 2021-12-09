@@ -46,7 +46,7 @@ pub fn part_one(crab_positions: &[usize]) -> usize {
     let min = crab_positions.iter().copied().min().unwrap();
     let max = crab_positions.iter().copied().max().unwrap();
     (min..=max)
-        .map(|position| calculate_cost(position, &crab_positions))
+        .map(|position| calculate_cost(position, crab_positions))
         .min()
         .unwrap()
 }
@@ -55,7 +55,7 @@ pub fn part_two(crab_positions: &[usize]) -> usize {
     let min = crab_positions.iter().copied().min().unwrap();
     let max = crab_positions.iter().copied().max().unwrap();
     (min..=max)
-        .map(|position| calculate_bigger_cost(position, &crab_positions))
+        .map(|position| calculate_bigger_cost(position, crab_positions))
         .min()
         .unwrap()
 }

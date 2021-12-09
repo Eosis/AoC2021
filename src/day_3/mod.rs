@@ -41,7 +41,7 @@ pub fn part_one(items: Vec<String>) -> usize {
         .collect();
     let counts: Vec<(_, _)> = counts
         .iter()
-        .map(|counter| get_max_and_min_from_counter(counter))
+        .map( get_max_and_min_from_counter)
         .collect();
     let mosts_number: String = counts.iter().map(|(b, _)| b).collect();
     let leasts_number: String = counts.iter().map(|(_, b)| b).collect();

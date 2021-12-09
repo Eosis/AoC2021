@@ -44,18 +44,16 @@ pub fn part_one(items: &[(Vec<String>, Vec<String>)]) -> usize {
 
 pub fn part_two(items: &Input) -> usize {
     let to_set: fn(&str) -> BTreeSet<char> = |digit| digit.chars().collect();
-    let as_sets: Vec<_> = items
-        .into_iter()
+    let as_sets = items
+        .iter()
         .map(|(all, shown)| -> (Vec<BTreeSet<char>>, Vec<BTreeSet<char>>) {
             (
                 all.iter().map(|x| to_set(x)).collect(),
                 shown.iter().map(|x| to_set(x)).collect(),
             )
-        })
-        .collect();
+        });
 
     as_sets
-        .into_iter()
         .map(|(all, shown)| (determine_digits(&all), shown))
         .map(|(known, shown)| get_value_from_display(&known, &shown))
         .sum()
@@ -76,7 +74,7 @@ fn determine_digits(all: &[BTreeSet<char>]) -> HashMap<BTreeSet<char>, usize> {
     result.insert(set_of_number_four, 4);
     result.insert(set_of_number_seven, 7);
     result.insert(set_of_number_eight, 8);
-    let digits_to_sets: HashMap<usize, BTreeSet<char>> = result.iter().map(|(k, v)| (v.clone(), k.clone())).collect();
+    let digits_to_sets: HashMap<usize, BTreeSet<char>> = result.iter().map(|(k, v)| (*v, k.clone())).collect();
     let sets_of_cardinality_5: Vec<_> = all.iter().filter(|set| set.len() == 5).cloned().collect();
     let sets_of_cardinality_6: Vec<_> = all.iter().filter(|set| set.len() == 6).cloned().collect();
     add_cardinality_five_digits(sets_of_cardinality_5, &digits_to_sets, &mut result);

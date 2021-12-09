@@ -35,7 +35,7 @@ fn get_risk_value((y, x): (usize, usize), grid: &[Vec<usize>]) -> usize {
     let right = grid[y].get(x + 1).map(|_| grid[y][x + 1]);
     let low_point = [above, right, below, left]
         .into_iter()
-        .filter_map(|x| x)
+        .flatten()
         .all(|neighbour| value < neighbour);
     if low_point {
         value + 1
@@ -46,7 +46,7 @@ fn get_risk_value((y, x): (usize, usize), grid: &[Vec<usize>]) -> usize {
 
 pub fn part_one(grid: &[Vec<usize>]) -> usize {
     (0usize..grid.len())
-        .flat_map(|y| (0usize..grid[y].len()).map(move |x| get_risk_value((y, x), &grid)))
+        .flat_map(|y| (0usize..grid[y].len()).map(move |x| get_risk_value((y, x), grid)))
         .sum()
 }
 
@@ -55,20 +55,20 @@ fn get_basin_sizes(grid: &[Vec<usize>]) -> Vec<usize> {
         .flat_map(|y| (0usize..grid[y].len()).map(move |x| (y, x)))
         .filter(|(y, x)| get_risk_value((*y, *x), grid) > 0);
     low_points
-        .map(|(y, x)| trundle_and_count((y, x), &grid, &mut HashSet::new()))
+        .map(|(y, x)| trundle_and_count((y, x), grid, &mut HashSet::new()))
         .collect()
 }
 
-fn trundle_and_count((y, x): (usize, usize), grid: &[Vec<usize>], mut visited: &mut HashSet<(usize, usize)>) -> usize {
+fn trundle_and_count((y, x): (usize, usize), grid: &[Vec<usize>], visited: &mut HashSet<(usize, usize)>) -> usize {
     // Account for a previous trundling!
     if visited.contains(&(y, x)) {
         return 0;
     }
 
     visited.insert((y, x));
-    1 + get_trundlable_neighbours((y, x), &grid, &mut visited)
+    1 + get_trundlable_neighbours((y, x), grid, visited)
         .into_iter()
-        .map(|(y, x)| trundle_and_count((y, x), grid, &mut visited))
+        .map(|(y, x)| trundle_and_count((y, x), grid, visited))
         .sum::<usize>()
 }
 
@@ -91,7 +91,7 @@ fn get_trundlable_neighbours(
     let right = grid[y].get(x + 1).map(|_| ((y, x + 1), grid[y][x + 1]));
     [above, below, left, right]
         .into_iter()
-        .filter_map(|pos| pos)
+        .flatten()
         .filter(|((new_y, new_x), value)| *value >= grid[y][x] && !visited.contains(&(*new_y, *new_x)) && *value != 9)
         .map(|((new_y, new_x), _)| (new_y, new_x))
         .collect()
@@ -99,7 +99,7 @@ fn get_trundlable_neighbours(
 
 pub fn part_two(grid: &[Vec<usize>]) -> usize {
     let mut basin_sizes = get_basin_sizes(grid);
-    basin_sizes.sort();
+    basin_sizes.sort_unstable();
     basin_sizes.into_iter().rev().take(3).product::<usize>()
 }
 
