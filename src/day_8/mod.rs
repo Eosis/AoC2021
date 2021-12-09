@@ -1,8 +1,7 @@
-
+use hashbrown::HashMap;
+use std::collections::BTreeSet;
 use std::fs;
 use std::path::Path;
-use hashbrown::{HashMap};
-use std::collections::BTreeSet;
 
 type Input = Vec<(Vec<String>, Vec<String>)>;
 pub fn solve_part_1() -> Result<(), ()> {
@@ -28,42 +27,35 @@ fn parse_from_str(input: &str) -> Input {
         .map(|line| -> (Vec<String>, Vec<String>) {
             let line: Vec<Vec<String>> = line
                 .split('|')
-                .map(|item| -> Vec<String> {
-                    item
-                        .trim()
-                        .split_whitespace()
-                        .map(|item| item.to_string()).collect()
-                })
+                .map(|item| -> Vec<String> { item.trim().split_whitespace().map(|item| item.to_string()).collect() })
                 .collect();
             (line[0].clone(), line[1].clone())
         })
         .collect()
 }
 
-pub fn part_one(items: &[(Vec<String>, Vec<String>)] )-> usize {
+pub fn part_one(items: &[(Vec<String>, Vec<String>)]) -> usize {
     items
         .iter()
         .map(|(_, shown)| shown)
-        .flat_map( |shown| shown.iter().filter(|digit| matches!(digit.len(), 2 | 3 | 4 | 7)))
+        .flat_map(|shown| shown.iter().filter(|digit| matches!(digit.len(), 2 | 3 | 4 | 7)))
         .count()
 }
 
 pub fn part_two(items: &Input) -> usize {
     let to_set: fn(&str) -> BTreeSet<char> = |digit| digit.chars().collect();
-    let as_sets: Vec<_> = items.into_iter().map(|(all, shown)| -> (Vec<BTreeSet<char>>, Vec<BTreeSet<char>>) {
-        (
-            all
-                .iter()
-                .map(|x| to_set(x))
-                .collect(),
-            shown
-                .iter()
-                .map(|x| to_set(x))
-                .collect()
-        )
-    }).collect();
+    let as_sets: Vec<_> = items
+        .into_iter()
+        .map(|(all, shown)| -> (Vec<BTreeSet<char>>, Vec<BTreeSet<char>>) {
+            (
+                all.iter().map(|x| to_set(x)).collect(),
+                shown.iter().map(|x| to_set(x)).collect(),
+            )
+        })
+        .collect();
 
-    as_sets.into_iter()
+    as_sets
+        .into_iter()
         .map(|(all, shown)| (determine_digits(&all), shown))
         .map(|(known, shown)| get_value_from_display(&known, &shown))
         .sum()
@@ -84,7 +76,7 @@ fn determine_digits(all: &[BTreeSet<char>]) -> HashMap<BTreeSet<char>, usize> {
     result.insert(set_of_number_four, 4);
     result.insert(set_of_number_seven, 7);
     result.insert(set_of_number_eight, 8);
-    let digits_to_sets: HashMap<usize, BTreeSet<char>> = result.iter().map(|(k, v) | (v.clone(), k.clone())).collect();
+    let digits_to_sets: HashMap<usize, BTreeSet<char>> = result.iter().map(|(k, v)| (v.clone(), k.clone())).collect();
     let sets_of_cardinality_5: Vec<_> = all.iter().filter(|set| set.len() == 5).cloned().collect();
     let sets_of_cardinality_6: Vec<_> = all.iter().filter(|set| set.len() == 6).cloned().collect();
     add_cardinality_five_digits(sets_of_cardinality_5, &digits_to_sets, &mut result);
@@ -100,13 +92,15 @@ fn get_id_tuple(set: &BTreeSet<char>, digits_to_sets: &HashMap<usize, BTreeSet<c
     )
 }
 
-fn add_cardinality_five_digits(sets_of_cardinality_5: Vec<BTreeSet<char>>,
-                                  digits_to_sets: &HashMap<usize, BTreeSet<char>>,
-                                  result: &mut HashMap<BTreeSet<char>, usize>) {
+fn add_cardinality_five_digits(
+    sets_of_cardinality_5: Vec<BTreeSet<char>>,
+    digits_to_sets: &HashMap<usize, BTreeSet<char>>,
+    result: &mut HashMap<BTreeSet<char>, usize>,
+) {
     let cardinality_5_digits: HashMap<usize, BTreeSet<char>> = sets_of_cardinality_5
         .into_iter()
         .map(|set| (get_id_tuple(&set, digits_to_sets), set))
-        .map(|(tuple , set )| -> (usize, BTreeSet<char>) {
+        .map(|(tuple, set)| -> (usize, BTreeSet<char>) {
             match tuple {
                 (1, 2, 2) => (2, set),
                 (2, 3, 3) => (3, set),
@@ -115,26 +109,30 @@ fn add_cardinality_five_digits(sets_of_cardinality_5: Vec<BTreeSet<char>>,
                     panic!("Unexpected ID in cardinality 5 check: {:?}", tuple)
                 }
             }
-        }).collect();
+        })
+        .collect();
     for (value, set) in cardinality_5_digits.into_iter() {
         result.insert(set, value);
     }
 }
 
-fn add_cardinality_six_digits(sets_of_cardinality_5: Vec<BTreeSet<char>>,
-                              digits_to_sets: &HashMap<usize, BTreeSet<char>>,
-                              result: &mut HashMap<BTreeSet<char>, usize>) {
+fn add_cardinality_six_digits(
+    sets_of_cardinality_5: Vec<BTreeSet<char>>,
+    digits_to_sets: &HashMap<usize, BTreeSet<char>>,
+    result: &mut HashMap<BTreeSet<char>, usize>,
+) {
     let cardinality_6_digits: HashMap<usize, BTreeSet<char>> = sets_of_cardinality_5
         .into_iter()
         .map(|set| (get_id_tuple(&set, digits_to_sets), set))
-        .map(|(tuple , set )| -> (usize, BTreeSet<char>) {
+        .map(|(tuple, set)| -> (usize, BTreeSet<char>) {
             match tuple {
                 (2, 3, 3) => (0, set),
                 (1, 3, 2) => (6, set),
                 (2, 4, 3) => (9, set),
                 _ => panic!("Unexpected ID in cardinality 6 check"),
             }
-        }).collect();
+        })
+        .collect();
     for (value, set) in cardinality_6_digits.into_iter() {
         result.insert(set, value);
     }

@@ -1,7 +1,6 @@
-
+use hashbrown::HashSet;
 use std::fs;
 use std::path::Path;
-use hashbrown::HashSet;
 
 type Input = Vec<Vec<usize>>;
 pub fn solve_part_1() -> Result<(), ()> {
@@ -24,26 +23,15 @@ fn parse_from_file<T: AsRef<Path>>(filename: T) -> Input {
 fn parse_from_str(input: &str) -> Input {
     input
         .lines()
-        .map(|line|
-            line
-                .chars()
-                .map(|n| n.to_digit(10).unwrap() as usize)
-                .collect()
-        )
+        .map(|line| line.chars().map(|n| n.to_digit(10).unwrap() as usize).collect())
         .collect()
 }
 
 fn get_risk_value((y, x): (usize, usize), grid: &[Vec<usize>]) -> usize {
     let value = grid[y][x];
-    let above = if y > 0 {
-        Some(grid[y - 1 ][x])
-    } else { None };
+    let above = if y > 0 { Some(grid[y - 1][x]) } else { None };
     let below = grid.get(y + 1).map(|_| grid[y + 1][x]);
-    let left = if x > 0 {
-        Some(grid[y][x-1])
-    } else {
-        None
-    };
+    let left = if x > 0 { Some(grid[y][x - 1]) } else { None };
     let right = grid[y].get(x + 1).map(|_| grid[y][x + 1]);
     let low_point = [above, right, below, left]
         .into_iter()
@@ -56,9 +44,9 @@ fn get_risk_value((y, x): (usize, usize), grid: &[Vec<usize>]) -> usize {
     }
 }
 
-pub fn part_one(grid: &[Vec<usize>] )-> usize {
+pub fn part_one(grid: &[Vec<usize>]) -> usize {
     (0usize..grid.len())
-        .flat_map(|y| (0usize..grid[y].len()).map(move |x| get_risk_value((y,x), &grid)))
+        .flat_map(|y| (0usize..grid[y].len()).map(move |x| get_risk_value((y, x), &grid)))
         .sum()
 }
 
@@ -84,10 +72,22 @@ fn trundle_and_count((y, x): (usize, usize), grid: &[Vec<usize>], mut visited: &
         .sum::<usize>()
 }
 
-fn get_trundlable_neighbours((y, x): (usize, usize), grid: &[Vec<usize>], visited: &HashSet<(usize, usize)>) -> Vec<(usize, usize)> {
-    let above = if y > 0 { Some(((y - 1, x), grid[y - 1][x])) } else { None };
+fn get_trundlable_neighbours(
+    (y, x): (usize, usize),
+    grid: &[Vec<usize>],
+    visited: &HashSet<(usize, usize)>,
+) -> Vec<(usize, usize)> {
+    let above = if y > 0 {
+        Some(((y - 1, x), grid[y - 1][x]))
+    } else {
+        None
+    };
     let below = grid.get(y + 1).map(|_| ((y + 1, x), grid[y + 1][x]));
-    let left = if x > 0 { Some(((y, x - 1), grid[y][x-1])) } else { None };
+    let left = if x > 0 {
+        Some(((y, x - 1), grid[y][x - 1]))
+    } else {
+        None
+    };
     let right = grid[y].get(x + 1).map(|_| ((y, x + 1), grid[y][x + 1]));
     [above, below, left, right]
         .into_iter()
@@ -100,11 +100,7 @@ fn get_trundlable_neighbours((y, x): (usize, usize), grid: &[Vec<usize>], visite
 pub fn part_two(grid: &[Vec<usize>]) -> usize {
     let mut basin_sizes = get_basin_sizes(grid);
     basin_sizes.sort();
-    basin_sizes
-        .into_iter()
-        .rev()
-        .take(3)
-        .product::<usize>()
+    basin_sizes.into_iter().rev().take(3).product::<usize>()
 }
 
 #[cfg(test)]
