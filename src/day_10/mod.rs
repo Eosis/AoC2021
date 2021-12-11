@@ -1,4 +1,3 @@
-
 use std::fs;
 use std::path::Path;
 
@@ -65,11 +64,7 @@ fn get_naughty_closer<T: Iterator<Item = char>>(chars: &mut T, opener: char) -> 
 fn parse_naughty_string(string: &str) -> Option<char> {
     let mut chars = string.chars().peekable();
     loop {
-        let next = dbg!(chars.next());
-        if next.is_none() {
-            return None;
-        }
-        let opener = next.unwrap();
+        let opener = chars.next()?;
         if !is_opener(opener) {
             return Some(opener);
         }
@@ -92,16 +87,16 @@ fn values_from_naughty_bois(c: char) -> usize {
 
 pub fn part_one(lines: &[String]) -> usize {
     lines
-        .into_iter()
-        .filter_map(|line| parse_naughty_string(&line))
+        .iter()
+        .filter_map(|line| parse_naughty_string(line))
         .map(values_from_naughty_bois)
         .sum()
 }
 
 pub fn part_two(lines: &[String]) -> usize {
     let mut values: Vec<_> = lines
-        .into_iter()
-        .filter(|line| parse_naughty_string(&line).is_none())
+        .iter()
+        .filter(|line| parse_naughty_string(line).is_none())
         .map(|line| get_closers(line))
         .map(|closers| closers.chars().fold(0, do_arbitrary_additional_mathematics))
         .collect();

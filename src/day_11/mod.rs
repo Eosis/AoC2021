@@ -27,11 +27,11 @@ fn parse_from_str(input: &str) -> Input {
         .collect()
 }
 
-pub fn part_one(mut grid: &mut [Vec<usize>]) -> usize {
+pub fn part_one(grid: &mut [Vec<usize>]) -> usize {
     let mut flashes = 0;
     for _step in 0..100 {
-        flashes += iterate_dem_octos(&mut grid);
-        print_grid(&grid);
+        flashes += iterate_dem_octos(grid);
+        print_grid(grid);
     }
     flashes
 }
@@ -92,11 +92,7 @@ fn get_neighbours(grid: &[Vec<usize>], (y, x): (usize, usize)) -> impl Iterator<
     (-1..=1)
         .flat_map(move |dy| {
             (-1..=1).map(move |dx| {
-                if dx == 0 && dy == 0 {
-                    None
-                } else if dx + x < 0 || dx + x >= max_x {
-                    None
-                } else if dy + y < 0 || dy + y >= max_y {
+                if (dx == 0 && dy == 0) || dx + x < 0 || dx + x >= max_x || dy + y < 0 || dy + y >= max_y {
                     None
                 } else {
                     Some(((y + dy) as usize, (x + dx) as usize))
@@ -106,12 +102,12 @@ fn get_neighbours(grid: &[Vec<usize>], (y, x): (usize, usize)) -> impl Iterator<
         .flatten()
 }
 
-pub fn part_two(mut grid: &mut [Vec<usize>]) -> usize {
+pub fn part_two(grid: &mut [Vec<usize>]) -> usize {
     let mut step = 0;
     let size = grid[0].len() * grid.len();
     loop {
         step += 1;
-        let flashes_this_time = iterate_dem_octos(&mut grid);
+        let flashes_this_time = iterate_dem_octos(grid);
         if flashes_this_time == size {
             break step;
         }
