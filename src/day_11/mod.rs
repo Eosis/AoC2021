@@ -31,7 +31,7 @@ pub fn part_one(mut grid: &mut [Vec<usize>]) -> usize {
     let mut flashes = 0;
     for step in 0..100 {
         flashes += iterate_dem_octos(&mut grid);
-        print_grid(& grid);
+        print_grid(&grid);
     }
     flashes
 }
@@ -71,7 +71,7 @@ fn print_grid(grid: &[Vec<usize>]) {
     }
 }
 
-fn flash_dem_neighbours(grid: &mut [Vec<usize>], (y, x): (usize, usize), flashed: &mut HashSet<(usize,usize)>) {
+fn flash_dem_neighbours(grid: &mut [Vec<usize>], (y, x): (usize, usize), flashed: &mut HashSet<(usize, usize)>) {
     if flashed.contains(&(y, x)) {
         return;
     }
@@ -85,23 +85,25 @@ fn flash_dem_neighbours(grid: &mut [Vec<usize>], (y, x): (usize, usize), flashed
     }
 }
 
-fn get_neighbours(grid: &[Vec<usize>], (y, x): (usize, usize)) -> impl Iterator<Item=(usize, usize)> {
+fn get_neighbours(grid: &[Vec<usize>], (y, x): (usize, usize)) -> impl Iterator<Item = (usize, usize)> {
     let (y, x) = (y as i32, x as i32);
     let max_x = grid[0].len() as i32;
     let max_y = grid.len() as i32;
-    (-1..=1).flat_map(move |dy| {
-        (-1..=1).map(move | dx | {
-            if dx == 0 && dy == 0 {
-                None
-            } else if dx + x < 0 || dx + x >= max_x {
-                None
-            } else if dy + y < 0 || dy + y >= max_y {
-                None
-            } else {
-                Some(((y + dy) as usize, (x + dx) as usize))
-            }
+    (-1..=1)
+        .flat_map(move |dy| {
+            (-1..=1).map(move |dx| {
+                if dx == 0 && dy == 0 {
+                    None
+                } else if dx + x < 0 || dx + x >= max_x {
+                    None
+                } else if dy + y < 0 || dy + y >= max_y {
+                    None
+                } else {
+                    Some(((y + dy) as usize, (x + dx) as usize))
+                }
+            })
         })
-    }).flatten()
+        .flatten()
 }
 
 pub fn part_two(mut grid: &mut [Vec<usize>]) -> usize {
@@ -130,7 +132,7 @@ mod tests {
 
     #[test]
     fn test_get_neighbours() {
-        let mut input =  parse_from_str(TEST_INPUT);
+        let mut input = parse_from_str(TEST_INPUT);
         dbg!(get_neighbours(&mut input, (1, 1)).collect::<Vec<_>>());
         assert_eq!(get_neighbours(&mut input, (2, 2)).count(), 8)
     }

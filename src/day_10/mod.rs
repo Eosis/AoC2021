@@ -26,7 +26,7 @@ fn matching_closer(opener: char) -> char {
         '{' => '}',
         '(' => ')',
         '<' => '>',
-        _ => panic!("Unknown opener! {}", opener)
+        _ => panic!("Unknown opener! {}", opener),
     }
 }
 
@@ -38,25 +38,25 @@ fn is_closer(c: char) -> bool {
     matches!(c, ']' | '}' | ')' | '>')
 }
 
-fn get_naughty_closer<T: Iterator<Item=char>>(chars: &mut T, opener: char) -> Option<char> {
+fn get_naughty_closer<T: Iterator<Item = char>>(chars: &mut T, opener: char) -> Option<char> {
     let seeking = matching_closer(opener);
     loop {
         let next = dbg!(chars.next());
         if next.is_none() {
-            break None
+            break None;
         }
         let next = next.unwrap();
         if dbg!(is_closer(next)) {
             if next == seeking {
-                break None
+                break None;
             } else {
-                break Some(next)
+                break Some(next);
             }
         }
         if is_opener(next) {
             let next_chunk_parse_result = get_naughty_closer(chars, next);
             if next_chunk_parse_result.is_some() {
-                break next_chunk_parse_result
+                break next_chunk_parse_result;
             }
         }
     }
@@ -67,11 +67,11 @@ fn parse_naughty_string(string: &str) -> Option<char> {
     loop {
         let next = dbg!(chars.next());
         if next.is_none() {
-            return None
+            return None;
         }
         let opener = next.unwrap();
         if !is_opener(opener) {
-            return Some(opener)
+            return Some(opener);
         }
         let parsed_result = get_naughty_closer(&mut chars, opener);
         if parsed_result.is_some() {
@@ -86,7 +86,7 @@ fn values_from_naughty_bois(c: char) -> usize {
         ']' => 57,
         '}' => 1197,
         '>' => 25137,
-         _ => panic!("You wot?")
+        _ => panic!("You wot?"),
     }
 }
 
@@ -115,7 +115,7 @@ fn do_arbitrary_additional_mathematics(acc: usize, new: char) -> usize {
         ']' => acc * 5 + 2,
         '}' => acc * 5 + 3,
         '>' => acc * 5 + 4,
-        _ => panic!("You wot?")
+        _ => panic!("You wot?"),
     }
 }
 

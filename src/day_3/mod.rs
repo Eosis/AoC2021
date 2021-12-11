@@ -39,10 +39,7 @@ pub fn part_one(items: Vec<String>) -> usize {
     let counts: Vec<Counter<_>> = (0..items[0].len())
         .map(|pos| get_count_at_position(&items, pos))
         .collect();
-    let counts: Vec<(_, _)> = counts
-        .iter()
-        .map( get_max_and_min_from_counter)
-        .collect();
+    let counts: Vec<(_, _)> = counts.iter().map(get_max_and_min_from_counter).collect();
     let mosts_number: String = counts.iter().map(|(b, _)| b).collect();
     let leasts_number: String = counts.iter().map(|(_, b)| b).collect();
     let gamma_number = usize::from_str_radix(&mosts_number, 2).unwrap();
