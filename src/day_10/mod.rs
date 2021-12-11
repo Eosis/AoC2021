@@ -1,4 +1,4 @@
-use hashbrown::HashSet;
+
 use std::fs;
 use std::path::Path;
 
@@ -155,7 +155,7 @@ mod tests {
 
     #[test]
     fn test_example() {
-        let mut iter = TEST_STRING.chars();
+        let _iter = TEST_STRING.chars();
         assert_eq!(parse_naughty_string(TEST_STRING), Some('}'));
         assert_eq!(parse_naughty_string(TEST_STRING2), Some(')'));
         assert_eq!(parse_naughty_string(OPEN_STRING), None);

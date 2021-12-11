@@ -29,7 +29,7 @@ fn parse_from_str(input: &str) -> Input {
 
 pub fn part_one(mut grid: &mut [Vec<usize>]) -> usize {
     let mut flashes = 0;
-    for step in 0..100 {
+    for _step in 0..100 {
         flashes += iterate_dem_octos(&mut grid);
         print_grid(&grid);
     }
