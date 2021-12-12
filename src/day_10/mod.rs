@@ -40,12 +40,12 @@ fn is_closer(c: char) -> bool {
 fn get_naughty_closer<T: Iterator<Item = char>>(chars: &mut T, opener: char) -> Option<char> {
     let seeking = matching_closer(opener);
     loop {
-        let next = dbg!(chars.next());
+        let next = chars.next();
         if next.is_none() {
             break None;
         }
         let next = next.unwrap();
-        if dbg!(is_closer(next)) {
+        if is_closer(next) {
             if next == seeking {
                 break None;
             } else {
