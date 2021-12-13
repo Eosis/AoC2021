@@ -1,9 +1,9 @@
 use hashbrown::HashSet;
-use std::collections::{HashMap, VecDeque};
+
 use std::fs;
-use std::io::{self, Write};
+use std::io::{Write};
 use std::path::Path;
-use std::thread::current;
+
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Fold {
@@ -13,13 +13,13 @@ pub enum Fold {
 
 type Input = (HashSet<(usize, usize)>, Vec<Fold>);
 pub fn solve_part_1() -> Result<(), ()> {
-    let mut input = parse_from_file("./inputs/day13.txt");
+    let input = parse_from_file("./inputs/day13.txt");
     println!("Solution: {}", part_one(input));
     Ok(())
 }
 
 pub fn solve_part_2() -> Result<(), ()> {
-    let mut input = parse_from_file("./inputs/day13.txt");
+    let input = parse_from_file("./inputs/day13.txt");
     part_two(input);
     Ok(())
 }
@@ -119,7 +119,7 @@ mod tests {
     #[test]
     #[ignore]
     fn test_parse() {
-        let things = parse_from_str(TEST_INPUT);
+        let _things = parse_from_str(TEST_INPUT);
     }
 
     #[test]

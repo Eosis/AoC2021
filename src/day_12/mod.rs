@@ -1,19 +1,19 @@
 use hashbrown::HashSet;
 use std::collections::{HashMap, VecDeque};
 use std::fs;
-use std::io::{self, Write};
+
 use std::path::Path;
-use std::thread::current;
+
 
 type Input = HashMap<String, Vec<String>>;
 pub fn solve_part_1() -> Result<(), ()> {
-    let mut input = parse_from_file("./inputs/day12.txt");
+    let input = parse_from_file("./inputs/day12.txt");
     println!("Solution: {}", part_one(input));
     Ok(())
 }
 
 pub fn solve_part_2() -> Result<(), ()> {
-    let mut input = parse_from_file("./inputs/day12.txt");
+    let input = parse_from_file("./inputs/day12.txt");
     println!("Solution: {}", part_two(input));
     Ok(())
 }
@@ -39,7 +39,7 @@ fn parse_from_str(input: &str) -> Input {
 }
 
 pub fn part_one(map: Input) -> usize {
-    let mut visited: HashSet<String> = HashSet::new();
+    let _visited: HashSet<String> = HashSet::new();
     let result = get_paths_from("start", &map, HashSet::new());
     result
         .iter()
@@ -65,7 +65,7 @@ fn can_visit(node: &str, visited: &mut HashMap<String, usize>) -> bool {
         || (visited
             .iter()
             .filter(|(k, _v)| k.chars().next().unwrap().is_lowercase())
-            .all(|(k, v)| *v <= 1))
+            .all(|(_k, v)| *v <= 1))
 }
 
 fn get_longer_paths_from(node: &str, map: &Input, mut visited: HashMap<String, usize>) -> Vec<VecDeque<String>> {
@@ -98,7 +98,7 @@ fn get_longer_paths_from(node: &str, map: &Input, mut visited: HashMap<String, u
         .collect()
 }
 
-fn get_paths_from(node: &str, map: &Input, mut visited: HashSet<String>) -> Vec<VecDeque<String>> {
+fn get_paths_from(node: &str, map: &Input, visited: HashSet<String>) -> Vec<VecDeque<String>> {
     if node == "end" {
         return vec![vec!["end".to_string()].into()];
     }
