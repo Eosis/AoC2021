@@ -10,6 +10,8 @@ mod day_6;
 mod day_7;
 mod day_8;
 mod day_9;
+mod day_12;
+mod day_13;
 
 use argh::FromArgs;
 
@@ -52,6 +54,10 @@ fn main() -> Result<()> {
         (10, 2) => day_10::solve_part_2().expect(FAILURE_TEXT),
         (11, 1) => day_11::solve_part_1().expect(FAILURE_TEXT),
         (11, 2) => day_11::solve_part_2().expect(FAILURE_TEXT),
+        (12, 1) => day_12::solve_part_1().expect(FAILURE_TEXT),
+        (12, 2) => day_12::solve_part_2().expect(FAILURE_TEXT),
+        (13, 1) => day_13::solve_part_1().expect(FAILURE_TEXT),
+        (13, 2) => day_13::solve_part_2().expect(FAILURE_TEXT),
         (_, _) => unimplemented!("This day no work yet, brah."),
     };
     Ok(())

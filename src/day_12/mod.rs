@@ -69,6 +69,7 @@ fn can_visit(node: &str, visited: &mut HashMap<String, usize>) -> bool {
     if node == "start" {
         return  *visited.entry(node.to_string()).or_insert(0) < 1
     }
+
     node.chars().next().unwrap().is_uppercase()
     || *visited.entry(node.to_string()).or_insert(0) < 1
     || ( visited
@@ -150,6 +151,7 @@ mod tests {
         let map = parse_from_str(TEST_INPUT);
         dbg!(map);
     }
+
     #[test]
     fn test_part_one() {
         let map = parse_from_str(TEST_INPUT);
