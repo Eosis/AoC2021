@@ -1,9 +1,9 @@
-use std::collections::{HashMap, VecDeque};
 use hashbrown::HashSet;
+use std::collections::{HashMap, VecDeque};
 use std::fs;
+use std::io::{self, Write};
 use std::path::Path;
 use std::thread::current;
-use std::io::{self, Write};
 
 type Input = HashMap<String, Vec<String>>;
 pub fn solve_part_1() -> Result<(), ()> {
@@ -24,18 +24,8 @@ fn parse_from_file<T: AsRef<Path>>(filename: T) -> Input {
 }
 
 fn parse_from_str(input: &str) -> Input {
-    let line_items: Vec<Vec<&str>> = input
-        .lines()
-        .map(|line| {
-            line.split('-').collect()
-        })
-        .collect();
-    let reversed_line_items: Vec<Vec<&str>> = input
-        .lines()
-        .map(|line| {
-            line.split('-').rev().collect()
-        })
-        .collect();
+    let line_items: Vec<Vec<&str>> = input.lines().map(|line| line.split('-').collect()).collect();
+    let reversed_line_items: Vec<Vec<&str>> = input.lines().map(|line| line.split('-').rev().collect()).collect();
     let mut cave_system: HashMap<String, Vec<String>> = HashMap::new();
     for line_item in line_items.into_iter().chain(reversed_line_items.into_iter()) {
         let start = line_item[0];
@@ -49,7 +39,7 @@ fn parse_from_str(input: &str) -> Input {
 }
 
 pub fn part_one(map: Input) -> usize {
-    let mut visited: HashSet<String>= HashSet::new();
+    let mut visited: HashSet<String> = HashSet::new();
     let result = get_paths_from("start", &map, HashSet::new());
     result
         .iter()
@@ -67,21 +57,20 @@ pub fn part_two(map: Input) -> usize {
 
 fn can_visit(node: &str, visited: &mut HashMap<String, usize>) -> bool {
     if node == "start" {
-        return  *visited.entry(node.to_string()).or_insert(0) < 1
+        return *visited.entry(node.to_string()).or_insert(0) < 1;
     }
 
     node.chars().next().unwrap().is_uppercase()
-    || *visited.entry(node.to_string()).or_insert(0) < 1
-    || ( visited
+        || *visited.entry(node.to_string()).or_insert(0) < 1
+        || (visited
             .iter()
             .filter(|(k, _v)| k.chars().next().unwrap().is_lowercase())
-            .all(|(k, v)| *v <= 1)
-    )
+            .all(|(k, v)| *v <= 1))
 }
 
 fn get_longer_paths_from(node: &str, map: &Input, mut visited: HashMap<String, usize>) -> Vec<VecDeque<String>> {
     if node == "end" {
-        return vec![vec!["end".to_string()].into()]
+        return vec![vec!["end".to_string()].into()];
     }
 
     if !can_visit(node, &mut visited) {
@@ -111,7 +100,7 @@ fn get_longer_paths_from(node: &str, map: &Input, mut visited: HashMap<String, u
 
 fn get_paths_from(node: &str, map: &Input, mut visited: HashSet<String>) -> Vec<VecDeque<String>> {
     if node == "end" {
-        return vec![vec!["end".to_string()].into()]
+        return vec![vec!["end".to_string()].into()];
     }
 
     if visited.contains(node) && node.chars().next().unwrap().is_lowercase() {

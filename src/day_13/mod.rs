@@ -1,9 +1,9 @@
-use std::collections::{HashMap, VecDeque};
 use hashbrown::HashSet;
+use std::collections::{HashMap, VecDeque};
 use std::fs;
+use std::io::{self, Write};
 use std::path::Path;
 use std::thread::current;
-use std::io::{self, Write};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Fold {
@@ -31,25 +31,23 @@ fn parse_from_file<T: AsRef<Path>>(filename: T) -> Input {
 
 fn parse_from_str(input: &str) -> Input {
     let mut lines = input.lines();
-    let points : HashSet<(usize, usize)>  = lines.by_ref().take_while(|x| x.trim().len() != 0)
+    let points: HashSet<(usize, usize)> = lines
+        .by_ref()
+        .take_while(|x| x.trim().len() != 0)
         .map(|line| {
-            let point = line
-                .split(',')
-                .map(|n| n.parse().unwrap())
-                .collect::<Vec<usize>>();
+            let point = line.split(',').map(|n| n.parse().unwrap()).collect::<Vec<usize>>();
             (point[1], point[0])
-        }
-        ).collect();
+        })
+        .collect();
     let folds: Vec<Fold> = lines
         .map(|line| line.split(' ').last().unwrap())
         .map(|item| item.split('=').collect::<Vec<&str>>())
-        .map(|item| match &item[..]
-            {
-                ["y", n] => Fold::Y(n.parse().unwrap()),
-                ["x", n] => Fold::X(n.parse().unwrap()),
-                _ => panic!("You wot!? {:?}", item)
-            }
-        ).collect();
+        .map(|item| match &item[..] {
+            ["y", n] => Fold::Y(n.parse().unwrap()),
+            ["x", n] => Fold::X(n.parse().unwrap()),
+            _ => panic!("You wot!? {:?}", item),
+        })
+        .collect();
     (points, folds)
 }
 
@@ -59,21 +57,19 @@ pub fn part_one(input: Input) -> usize {
 
 pub fn part_two(input: Input) {
     let folds = input.1;
-    let result = folds
-        .iter()
-        .fold(input.0, |acc, new| fold(acc, *new));
+    let result = folds.iter().fold(input.0, |acc, new| fold(acc, *new));
     print_dem_lettas(result);
 }
 
 fn print_dem_lettas(points: HashSet<(usize, usize)>) {
     let (min_x, max_x) = (
         points.iter().map(|(_, x)| *x).min().unwrap(),
-        points.iter().map(|(_, x)| *x).max().unwrap()
+        points.iter().map(|(_, x)| *x).max().unwrap(),
     );
 
     let (min_y, max_y) = (
         points.iter().map(|(y, _)| *y).min().unwrap(),
-        points.iter().map(|(y, _)| *y).max().unwrap()
+        points.iter().map(|(y, _)| *y).max().unwrap(),
     );
 
     for y in min_y..=max_y {
@@ -89,19 +85,29 @@ fn print_dem_lettas(points: HashSet<(usize, usize)>) {
 }
 
 fn fold(points: HashSet<(usize, usize)>, fold: Fold) -> HashSet<(usize, usize)> {
-    points.into_iter()
+    points
+        .into_iter()
         .filter(|(y, x)| match fold {
             Fold::X(n) => *x != n,
             Fold::Y(n) => *y != n,
         })
         .map(|(y, x)| match fold {
             Fold::X(n) => {
-                if x < n { (y, x) } else { (y, (2 * n) - x) }
+                if x < n {
+                    (y, x)
+                } else {
+                    (y, (2 * n) - x)
+                }
             }
             Fold::Y(n) => {
-                if y < n { (y, x) } else { ((2 * n) - y, x) }
+                if y < n {
+                    (y, x)
+                } else {
+                    ((2 * n) - y, x)
+                }
             }
-        }).collect()
+        })
+        .collect()
 }
 
 #[cfg(test)]
