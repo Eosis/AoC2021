@@ -1,7 +1,5 @@
 use hashbrown::HashSet;
-
 use std::fs;
-use std::io::{Write};
 use std::path::Path;
 
 
@@ -33,7 +31,7 @@ fn parse_from_str(input: &str) -> Input {
     let mut lines = input.lines();
     let points: HashSet<(usize, usize)> = lines
         .by_ref()
-        .take_while(|x| x.trim().len() != 0)
+        .take_while(|x| !x.trim().is_empty())
         .map(|line| {
             let point = line.split(',').map(|n| n.parse().unwrap()).collect::<Vec<usize>>();
             (point[1], point[0])

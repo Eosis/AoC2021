@@ -24,15 +24,15 @@ fn parse_from_file<T: AsRef<Path>>(filename: T) -> Input {
 }
 
 fn parse_from_str(input: &str) -> Input {
-    let line_items: Vec<Vec<&str>> = input.lines().map(|line| line.split('-').collect()).collect();
-    let reversed_line_items: Vec<Vec<&str>> = input.lines().map(|line| line.split('-').rev().collect()).collect();
+    let line_items = input.lines().map(|line| line.split('-').collect::<Vec<_>>());
+    let reversed_line_items = input.lines().map(|line| line.split('-').rev().collect::<Vec<_>>());
     let mut cave_system: HashMap<String, Vec<String>> = HashMap::new();
-    for line_item in line_items.into_iter().chain(reversed_line_items.into_iter()) {
-        let start = line_item[0];
-        let end = line_item[1];
+    for line_item in line_items.chain(reversed_line_items) {
+        let start: &str = line_item[0];
+        let end: &str = line_item[1];
         cave_system
             .entry(start.to_string())
-            .or_insert(vec![])
+            .or_insert_with(Vec::new)
             .push(end.to_string());
     }
     cave_system
@@ -77,14 +77,13 @@ fn get_longer_paths_from(node: &str, map: &Input, mut visited: HashMap<String, u
         return vec![];
     }
 
-    let mut new_visited = visited.clone();
+    let mut new_visited = visited;
     *new_visited.entry(node.to_string()).or_insert(0) += 1;
 
     let connected = map.get(node).unwrap();
-    let paths_from_here: Vec<Vec<VecDeque<String>>> = connected
+    let paths_from_here = connected
         .iter()
-        .map(|other| get_longer_paths_from(other, map, new_visited.clone()))
-        .collect();
+        .map(|other| get_longer_paths_from(other, map, new_visited.clone()));
 
     paths_from_here
         .into_iter()
@@ -107,14 +106,13 @@ fn get_paths_from(node: &str, map: &Input, visited: HashSet<String>) -> Vec<VecD
         return vec![];
     }
 
-    let mut new_visited = visited.clone();
+    let mut new_visited = visited;
     new_visited.insert(node.to_string());
 
     let connected = map.get(node).unwrap();
-    let paths_from_here: Vec<Vec<VecDeque<String>>> = connected
+    let paths_from_here = connected
         .iter()
-        .map(|other| get_paths_from(other, map, new_visited.clone()))
-        .collect();
+        .map(|other| get_paths_from(other, map, new_visited.clone()));
 
     paths_from_here
         .into_iter()
