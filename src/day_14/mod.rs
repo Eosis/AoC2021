@@ -40,30 +40,22 @@ fn parse_from_str(input: &str) -> Input {
     (starting, inbetweeners)
 }
 
-pub fn part_one((initial_value, inbetweeners): Input) -> usize {
-    let initial_count: Counter<char> = initial_value.chars().collect();
-    let initial_count: BTreeMap<char, usize> = initial_count.into_iter().map(|(&c, &count)| (c, count)).collect();
-    let mut cache = BTreeMap::new();
-    let resulting: BTreeMap<char, usize> = initial_value
-        .chars()
-        .tuple_windows()
-        .map(|(left, right)| get_between_count((left, right), 10, &inbetweeners, &mut cache))
-        .fold(initial_count, |acc, new| combine_dem_counts(acc, new));
-
-    let mut resulting: Vec<(char, usize)> = resulting.into_iter().collect();
-    resulting.sort_by(|a, b| a.1.cmp(&b.1));
-
-    resulting.last().unwrap().1 - resulting.first().unwrap().1
+pub fn part_one(input: Input) -> usize {
+    get_answer_after_all_dem_iterations(input, 10)
 }
 
-pub fn part_two((initial_value, inbetweeners): Input) -> usize {
+pub fn part_two(input: Input) -> usize {
+    get_answer_after_all_dem_iterations(input, 40)
+}
+
+fn get_answer_after_all_dem_iterations((initial_value, inbetweeners): Input, iterations: usize) -> usize {
     let initial_count: Counter<char> = initial_value.chars().collect();
     let initial_count: BTreeMap<char, usize> = initial_count.into_iter().map(|(&c, &count)| (c, count)).collect();
     let mut cache = BTreeMap::new();
     let resulting: BTreeMap<char, usize> = initial_value
         .chars()
         .tuple_windows()
-        .map(|(left, right)| get_between_count((left, right), 40, &inbetweeners, &mut cache))
+        .map(|(left, right)| get_between_count((left, right), iterations, &inbetweeners, &mut cache))
         .fold(initial_count, |acc, new| combine_dem_counts(acc, new));
 
     let mut resulting: Vec<(char, usize)> = resulting.into_iter().collect();
@@ -131,6 +123,7 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        unimplemented!();
+        let input = parse_from_str(TEST_INPUT);
+        assert_eq!(part_two(input), 2188189693529)
     }
 }
