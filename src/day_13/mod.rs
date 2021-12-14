@@ -2,7 +2,6 @@ use hashbrown::HashSet;
 use std::fs;
 use std::path::Path;
 
-
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Fold {
     Y(usize),

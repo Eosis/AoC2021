@@ -4,7 +4,6 @@ use std::fs;
 
 use std::path::Path;
 
-
 type Input = HashMap<String, Vec<String>>;
 pub fn solve_part_1() -> Result<(), ()> {
     let input = parse_from_file("./inputs/day12.txt");
