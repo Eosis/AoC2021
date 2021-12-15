@@ -53,7 +53,7 @@ fn get_answer_after_all_dem_iterations((initial_value, inbetweeners): Input, ite
         .chars()
         .tuple_windows()
         .map(|(left, right)| get_between_count((left, right), iterations, &inbetweeners, &mut cache))
-        .fold(initial_count, |acc, new| combine_dem_counts(acc, new));
+        .fold(initial_count, combine_dem_counts);
 
     let mut resulting: Vec<(char, usize)> = resulting.into_iter().collect();
     resulting.sort_by(|a, b| a.1.cmp(&b.1));
@@ -68,11 +68,14 @@ fn combine_dem_counts(mut lhs: BTreeMap<char, usize>, rhs: BTreeMap<char, usize>
     lhs
 }
 
+type ArgTuple = ((char, char), usize);
+type CachedResultType = BTreeMap<char, usize>;
+type Cache = BTreeMap<ArgTuple, CachedResultType>;
 fn get_between_count(
     (left, right): (char, char),
     iterations_remaining: usize,
     inbetweeners: &BTreeMap<(char, char), char>,
-    cache: &mut BTreeMap<((char, char), usize), BTreeMap<char, usize>>,
+    cache: &mut Cache,
 ) -> BTreeMap<char, usize> {
     if iterations_remaining == 0 {
         return BTreeMap::new();

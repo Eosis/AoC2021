@@ -1,10 +1,5 @@
 use crate::helpers::parse_grid_from_file;
-
 use hashbrown::HashSet;
-use itertools::Itertools;
-
-
-
 use std::path::Path;
 
 type Input = Vec<Vec<usize>>;
@@ -59,7 +54,7 @@ fn get_lowest_value_currently(distances: &[Vec<usize>], visited: &HashSet<(usize
                 .map(move |(x, value)| (y, x, value))
                 .filter(|(y, x, _)| !visited.contains(&(*y, *x)))
         })
-        .min_by(|(_y1, _x1, dist1), (_, _, dist2)| dist1.cmp(&dist2))
+        .min_by(|(_y1, _x1, dist1), (_, _, dist2)| dist1.cmp(dist2))
         .unwrap();
     (min.0, min.1)
 }
@@ -126,15 +121,6 @@ pub fn part_one(input: Input) -> usize {
 pub fn part_two(input: Input) -> usize {
     let bigger_map = build_bigger_map(input);
     part_one(bigger_map)
-}
-
-fn print_map(input: Input) {
-    for y in 0..input.len() {
-        println!();
-        for x in 0..input[y].len() {
-            print!("{}", input[y][x]);
-        }
-    }
 }
 
 #[cfg(test)]
