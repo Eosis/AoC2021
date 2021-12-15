@@ -1,3 +1,4 @@
+use crate::helpers::parse_grid_from_file;
 use hashbrown::HashSet;
 use std::fs;
 use std::path::Path;
@@ -16,15 +17,7 @@ pub fn solve_part_2() -> Result<(), ()> {
 }
 
 fn parse_from_file<T: AsRef<Path>>(filename: T) -> Input {
-    let input = fs::read_to_string(filename).unwrap();
-    parse_from_str(&input)
-}
-
-fn parse_from_str(input: &str) -> Input {
-    input
-        .lines()
-        .map(|line| line.chars().map(|n| n.to_digit(10).unwrap() as usize).collect())
-        .collect()
+    parse_grid_from_file(filename)
 }
 
 pub fn part_one(grid: &mut [Vec<usize>]) -> usize {
@@ -117,25 +110,25 @@ pub fn part_two(grid: &mut [Vec<usize>]) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    use crate::helpers::parse_grid_from_str;
     const TEST_INPUT: &str = include_str!("../../test_inputs/day11.txt");
 
     #[test]
     fn test_part_one() {
-        let mut input = parse_from_str(TEST_INPUT);
+        let mut input = parse_grid_from_str(TEST_INPUT);
         assert_eq!(part_one(&mut input), 1656);
     }
 
     #[test]
     fn test_get_neighbours() {
-        let mut input = parse_from_str(TEST_INPUT);
+        let mut input = parse_grid_from_str(TEST_INPUT);
         dbg!(get_neighbours(&mut input, (1, 1)).collect::<Vec<_>>());
         assert_eq!(get_neighbours(&mut input, (2, 2)).count(), 8)
     }
 
     #[test]
     fn test_part_two() {
-        let mut input = parse_from_str(TEST_INPUT);
+        let mut input = parse_grid_from_str(TEST_INPUT);
         assert_eq!(part_two(&mut input), 195);
     }
 }

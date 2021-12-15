@@ -1,6 +1,6 @@
 use counter::Counter;
 use itertools::Itertools;
-use std::collections::{BTreeMap};
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
