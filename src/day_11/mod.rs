@@ -1,6 +1,6 @@
 use crate::helpers::parse_grid_from_file;
 use hashbrown::HashSet;
-use std::fs;
+
 use std::path::Path;
 
 type Input = Vec<Vec<usize>>;

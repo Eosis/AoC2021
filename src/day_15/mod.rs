@@ -1,10 +1,10 @@
 use crate::helpers::parse_grid_from_file;
-use counter::Counter;
+
 use hashbrown::HashSet;
 use itertools::Itertools;
-use std::cmp::min;
-use std::collections::BTreeMap;
-use std::fs;
+
+
+
 use std::path::Path;
 
 type Input = Vec<Vec<usize>>;
@@ -30,7 +30,7 @@ fn expanded_row(row: &[usize], y: usize, number_of_rows: usize) -> Vec<usize> {
         .map(|x| {
             let y_addition = y / number_of_rows;
             let x_addition = x / width;
-            let mut result = (row[x % width] + y_addition + x_addition);
+            let mut result = row[x % width] + y_addition + x_addition;
             loop {
                 if result < 10 {
                     break result;
@@ -84,7 +84,7 @@ fn get_trundlable_neighbours(
     [above, below, left, right]
         .into_iter()
         .flatten()
-        .filter(|((new_y, new_x), value)| !visited.contains(&(*new_y, *new_x)))
+        .filter(|((new_y, new_x), _value)| !visited.contains(&(*new_y, *new_x)))
         .map(|((new_y, new_x), _)| (new_y, new_x))
         .collect()
 }
@@ -119,7 +119,7 @@ fn do_dijkstra_instead(input: Input) -> usize {
     output[max_y][max_x]
 }
 
-pub fn part_one(mut input: Input) -> usize {
+pub fn part_one(input: Input) -> usize {
     do_dijkstra_instead(input)
 }
 
