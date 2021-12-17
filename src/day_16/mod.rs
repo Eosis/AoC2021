@@ -156,9 +156,7 @@ fn get_subpacket_bits_length<Const: bitvec::ptr::Mutability>(
     get_value_from_bitslice(&(bits_iter.borrow_mut()).take(15).collect::<BitVec>())
 }
 
-fn get_subpacket_number<Const: bitvec::ptr::Mutability>(
-    bits_iter: &mut dyn Iterator<Item = BitRef<Const>>,
-) -> usize {
+fn get_subpacket_number<Const: bitvec::ptr::Mutability>(bits_iter: &mut dyn Iterator<Item = BitRef<Const>>) -> usize {
     get_value_from_bitslice(&(bits_iter.borrow_mut()).take(11).collect::<BitVec>())
 }
 
