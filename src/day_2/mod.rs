@@ -113,7 +113,7 @@ pub fn part_two(instructions: Vec<Instruction>) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const TEST_STRING: &'static str = "forward 5
+    const TEST_STRING: &str = "forward 5
         down 5
         forward 8
         up 3
@@ -137,11 +137,11 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        assert_eq!(part_one(parse_from_str(&TEST_STRING)), (5 + 8 + 2) * (5 - 3 + 8))
+        assert_eq!(part_one(parse_from_str(TEST_STRING)), (5 + 8 + 2) * (5 - 3 + 8))
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two(parse_from_str(&TEST_STRING)), 900)
+        assert_eq!(part_two(parse_from_str(TEST_STRING)), 900)
     }
 }

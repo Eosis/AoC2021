@@ -1,21 +1,18 @@
-use std::borrow::BorrowMut;
 use std::fmt::{Display, Formatter};
-use std::fs;
+
 use std::fs::read_to_string;
 use std::ops::Add;
 
-use bitvec::prelude::*;
-use std::path::Path;
 use itertools::Itertools;
+use std::path::Path;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum FishyNumber {
     Single(usize),
-    Pair { left: Box<FishyNumber>, right: Box<FishyNumber> }
-}
-
-struct FishyNumberArena {
-    fishy_numbers: Vec<FishyNumber>
+    Pair {
+        left: Box<FishyNumber>,
+        right: Box<FishyNumber>,
+    },
 }
 
 impl Add for FishyNumber {
@@ -31,10 +28,7 @@ impl Add for FishyNumber {
 impl FishyNumber {
     fn magnitude(&self) -> usize {
         match self {
-            FishyNumber::Pair {
-                left,
-                right
-            } => 3 * left.magnitude() + 2 * right.magnitude(),
+            FishyNumber::Pair { left, right } => 3 * left.magnitude() + 2 * right.magnitude(),
             FishyNumber::Single(n) => *n,
         }
     }
@@ -66,12 +60,12 @@ pub fn part_two(input: Input) -> usize {
     input
         .into_iter()
         .permutations(2)
-        .map(|perm| reduce_fully(perm[0].clone() + perm[1].clone()).magnitude() )
+        .map(|perm| reduce_fully(perm[0].clone() + perm[1].clone()).magnitude())
         .max()
         .unwrap()
 }
 
-pub trait PeekableIterator : std::iter::Iterator {
+pub trait PeekableIterator: std::iter::Iterator {
     fn peek(&mut self) -> Option<&Self::Item>;
 }
 
@@ -81,8 +75,9 @@ impl<I: std::iter::Iterator> PeekableIterator for std::iter::Peekable<I> {
     }
 }
 
-fn parse_fishy_number<T: Iterator<Item=char>  + itertools::PeekingNext + PeekableIterator>(
-    chars_iter: &mut T) -> FishyNumber {
+fn parse_fishy_number<T: Iterator<Item = char> + itertools::PeekingNext + PeekableIterator>(
+    chars_iter: &mut T,
+) -> FishyNumber {
     let next = chars_iter.peek().unwrap();
     match next {
         '[' => {
@@ -92,30 +87,22 @@ fn parse_fishy_number<T: Iterator<Item=char>  + itertools::PeekingNext + Peekabl
             let right = Box::new(parse_fishy_number(chars_iter));
             let _closer = chars_iter.next().unwrap();
             FishyNumber::Pair { left, right }
-        },
+        }
         '0'..='9' => {
-            let digits: String = chars_iter
-                .peeking_take_while(|c| matches!(c, '0'..='9'))
-                .collect();
+            let digits: String = chars_iter.peeking_take_while(|c| matches!(c, '0'..='9')).collect();
             FishyNumber::Single(digits.parse().unwrap())
-        },
-        _ => panic!("You wat? {}", next)
+        }
+        _ => panic!("You wat? {}", next),
     }
-
 }
 
-struct ReductionAction {
-    left_to_add: Option<usize>,
-    right_to_add: Option<usize>
-}
-
-fn add_to_leftmost( fishy_number: FishyNumber, to_add: usize) -> FishyNumber {
+fn add_to_leftmost(fishy_number: FishyNumber, to_add: usize) -> FishyNumber {
     match fishy_number {
         FishyNumber::Single(n) => FishyNumber::Single(n + to_add),
         FishyNumber::Pair { left, right } => FishyNumber::Pair {
             left: Box::new(add_to_leftmost(*left, to_add)),
             right,
-        }
+        },
     }
 }
 
@@ -125,19 +112,19 @@ fn add_to_rightmost(fishy_number: FishyNumber, to_add: usize) -> FishyNumber {
         FishyNumber::Pair { left, right } => FishyNumber::Pair {
             left,
             right: Box::new(add_to_rightmost(*right, to_add)),
-        }
+        },
     }
 }
 
 fn perform_reduction(fishy_number: FishyNumber) -> (FishyNumber, bool) {
     if let Some(number) = explode_leftmost_pair(fishy_number.clone()) {
-        return (number, true)
+        return (number, true);
     }
 
     if let Some(number) = split_regular_number(fishy_number.clone()) {
-        return (number, true)
+        return (number, true);
     }
-    return (fishy_number, false)
+    (fishy_number, false)
 }
 
 fn explode_leftmost_pair(fishy_number: FishyNumber) -> Option<FishyNumber> {
@@ -150,7 +137,6 @@ fn explode_leftmost_pair(fishy_number: FishyNumber) -> Option<FishyNumber> {
     }
 }
 
-
 fn split_regular_number(fishy_number: FishyNumber) -> Option<FishyNumber> {
     let mut reduction_happened = false;
     let result = make_a_splity_fishy_reduction(fishy_number, &mut reduction_happened);
@@ -161,8 +147,7 @@ fn split_regular_number(fishy_number: FishyNumber) -> Option<FishyNumber> {
     }
 }
 
-fn make_a_splity_fishy_reduction(fishy_number: FishyNumber, reduction_happened: &mut bool)
-    -> FishyNumber {
+fn make_a_splity_fishy_reduction(fishy_number: FishyNumber, reduction_happened: &mut bool) -> FishyNumber {
     if *reduction_happened {
         return fishy_number;
     }
@@ -172,40 +157,42 @@ fn make_a_splity_fishy_reduction(fishy_number: FishyNumber, reduction_happened: 
             let left = Box::new(FishyNumber::Single(n / 2));
             let right = Box::new(FishyNumber::Single(n / 2 + (n % 2)));
             *reduction_happened = true;
-            FishyNumber::Pair { left, right}
-        },
-        FishyNumber::Single(n) => fishy_number,
-        FishyNumber::Pair {left, right} => {
-            let resulting_left= Box::new(make_a_splity_fishy_reduction(*left, reduction_happened));
-            let resulting_right= Box::new(make_a_splity_fishy_reduction(*right, reduction_happened));
-            FishyNumber::Pair {left: resulting_left, right: resulting_right}
+            FishyNumber::Pair { left, right }
+        }
+        FishyNumber::Single(_n) => fishy_number,
+        FishyNumber::Pair { left, right } => {
+            let resulting_left = Box::new(make_a_splity_fishy_reduction(*left, reduction_happened));
+            let resulting_right = Box::new(make_a_splity_fishy_reduction(*right, reduction_happened));
+            FishyNumber::Pair {
+                left: resulting_left,
+                right: resulting_right,
+            }
         }
     }
 }
 
-
-fn make_an_explody_fishy_reduction(fishy_number: FishyNumber, nesting_level: usize, reduction_happened: &mut bool)
-    -> (FishyNumber, Option<usize>, Option<usize>) {
+fn make_an_explody_fishy_reduction(
+    fishy_number: FishyNumber,
+    nesting_level: usize,
+    reduction_happened: &mut bool,
+) -> (FishyNumber, Option<usize>, Option<usize>) {
     if *reduction_happened {
         return (fishy_number, None, None);
     }
 
     match fishy_number {
-        FishyNumber::Single(n) => (fishy_number, None, None),
-        FishyNumber::Pair {left, right} if nesting_level >= 4 => {
+        FishyNumber::Single(_n) => (fishy_number, None, None),
+        FishyNumber::Pair { left, right } if nesting_level >= 4 => {
             *reduction_happened = true;
             (
                 FishyNumber::Single(0),
                 Some(destruct_fishy_or_panic(*left)),
                 Some(destruct_fishy_or_panic(*right)),
             )
-        },
-        FishyNumber::Pair {left, right} => {
-            let (
-                resulting_left,
-                left_to_add,
-                right_to_add
-            ) = make_an_explody_fishy_reduction(*left, nesting_level + 1, reduction_happened);
+        }
+        FishyNumber::Pair { left, right } => {
+            let (resulting_left, left_to_add, right_to_add) =
+                make_an_explody_fishy_reduction(*left, nesting_level + 1, reduction_happened);
             match (left_to_add, right_to_add) {
                 (Some(left_to_add), Some(right_to_add)) => {
                     return (
@@ -214,9 +201,9 @@ fn make_an_explody_fishy_reduction(fishy_number: FishyNumber, nesting_level: usi
                             right: Box::new(add_to_leftmost(*right, right_to_add)),
                         },
                         Some(left_to_add),
-                        None
+                        None,
                     );
-                },
+                }
                 (Some(left_to_add), None) => {
                     return (
                         FishyNumber::Pair {
@@ -224,7 +211,7 @@ fn make_an_explody_fishy_reduction(fishy_number: FishyNumber, nesting_level: usi
                             right: Box::new(*right),
                         },
                         Some(left_to_add),
-                        None
+                        None,
                     );
                 }
                 (None, Some(right_to_add)) => {
@@ -234,56 +221,46 @@ fn make_an_explody_fishy_reduction(fishy_number: FishyNumber, nesting_level: usi
                             right: Box::new(add_to_leftmost(*right, right_to_add)),
                         },
                         None,
-                        None
+                        None,
                     );
-                },
-                (None, None) => ()
+                }
+                (None, None) => (),
             }
-            let (
-                resulting_right,
-                left_to_add,
-                right_to_add
-            ) = make_an_explody_fishy_reduction(*right, nesting_level + 1, reduction_happened);
+            let (resulting_right, left_to_add, right_to_add) =
+                make_an_explody_fishy_reduction(*right, nesting_level + 1, reduction_happened);
             match (left_to_add, right_to_add) {
-                (Some(left_to_add), Some(right_to_add)) => {
-                    return (
-                        FishyNumber::Pair {
-                            left: Box::new(add_to_rightmost(resulting_left, left_to_add)),
-                            right: Box::new(resulting_right)
-                        },
-                        None,
-                        Some(right_to_add)
-                    )
-                },
-                (None, Some(right_to_add)) => {
-                    return (
-                        FishyNumber::Pair {
-                            left: Box::new(resulting_left),
-                            right: Box::new(resulting_right),
-                        },
-                        None,
-                        Some(right_to_add),
-                    )
-                }
-                (Some(left_to_add), None) => {
-                    return (
-                        FishyNumber::Pair {
-                            left: Box::new(add_to_rightmost(resulting_left, left_to_add)),
-                            right: Box::new(resulting_right),
-                        },
-                        None,
-                        None
-                    )
-                },
-                (None, None) => {
-                    return (
-                        FishyNumber::Pair {
-                            left: Box::new(resulting_left), right: Box::new(resulting_right),
-                        },
-                        None,
-                        None,
-                    )
-                }
+                (Some(left_to_add), Some(right_to_add)) => (
+                    FishyNumber::Pair {
+                        left: Box::new(add_to_rightmost(resulting_left, left_to_add)),
+                        right: Box::new(resulting_right),
+                    },
+                    None,
+                    Some(right_to_add),
+                ),
+                (None, Some(right_to_add)) => (
+                    FishyNumber::Pair {
+                        left: Box::new(resulting_left),
+                        right: Box::new(resulting_right),
+                    },
+                    None,
+                    Some(right_to_add),
+                ),
+                (Some(left_to_add), None) => (
+                    FishyNumber::Pair {
+                        left: Box::new(add_to_rightmost(resulting_left, left_to_add)),
+                        right: Box::new(resulting_right),
+                    },
+                    None,
+                    None,
+                ),
+                (None, None) => (
+                    FishyNumber::Pair {
+                        left: Box::new(resulting_left),
+                        right: Box::new(resulting_right),
+                    },
+                    None,
+                    None,
+                ),
             }
         }
     }
@@ -306,10 +283,6 @@ fn reduce_fully(mut fishy_number: FishyNumber) -> FishyNumber {
     }
 }
 
-fn fishy_number_from_str(input: &str) -> FishyNumber {
-    parse_fishy_number(&mut input.chars().peekable())
-}
-
 impl From<&str> for FishyNumber {
     fn from(value: &str) -> Self {
         parse_fishy_number(&mut value.chars().peekable())
@@ -326,10 +299,7 @@ impl Display for FishyNumber {
 }
 
 fn parse_list_of_fishy_numbers(input: &str) -> Vec<FishyNumber> {
-    input
-        .lines()
-        .map(|line| line.into())
-        .collect()
+    input.lines().map(|line| line.into()).collect()
 }
 
 fn reduce_list(input: Vec<FishyNumber>) -> FishyNumber {
@@ -342,17 +312,12 @@ fn reduce_list(input: Vec<FishyNumber>) -> FishyNumber {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::read_to_string;
+
     use super::*;
 
     #[test]
     fn test_parsing() {
-        const EXAMPLES: [&str; 4] = [
-            "[1,2]",
-            "[[1,2],3]",
-            "[9,[8,7]]",
-            "[[1,9],[8,5]]",
-        ];
+        const EXAMPLES: [&str; 4] = ["[1,2]", "[[1,2],3]", "[9,[8,7]]", "[[1,9],[8,5]]"];
         dbg!(parse_fishy_number(&mut EXAMPLES[0].chars().peekable()));
         dbg!(parse_fishy_number(&mut EXAMPLES[1].chars().peekable()));
         dbg!(parse_fishy_number(&mut EXAMPLES[2].chars().peekable()));
@@ -398,7 +363,7 @@ mod tests {
         assert_eq!(result, "[[[[0,7],4],[15,[0,13]]],[1,1]]".into());
         let result = perform_reduction(result).0;
         assert_eq!(result, "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]".into());
-        let result= perform_reduction(result).0;
+        let result = perform_reduction(result).0;
         assert_eq!(result, "[[[[0,7],4],[[7,8],[0,[6,7]]]],[1,1]]".into());
         let result = perform_reduction(result).0;
         assert_eq!(result, "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]".into());
@@ -409,7 +374,10 @@ mod tests {
         let input = "[[[[4,0],[5,0]],[[[4,5],[2,6]],[9,5]]],[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]]".into();
         let result = perform_reduction(input).0;
         println!("{}", result);
-        assert_eq!(result, "[[[[4,0],[5,4]],[[0,[7,6]],[9,5]]],[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]]".into());
+        assert_eq!(
+            result,
+            "[[[[4,0],[5,4]],[[0,[7,6]],[9,5]]],[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]]".into()
+        );
     }
 
     #[test]
@@ -458,28 +426,45 @@ mod tests {
         let lhs: FishyNumber = "[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]".into();
         let rhs = "[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]".into();
 
-        assert_eq!(reduce_fully(lhs + rhs), "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]".into());
+        assert_eq!(
+            reduce_fully(lhs + rhs),
+            "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]".into()
+        );
 
         let lhs: FishyNumber = "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]".into();
         let rhs = "[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]".into();
-        assert_eq!(reduce_fully(lhs + rhs), "[[[[6,7],[6,7]],[[7,7],[0,7]]],[[[8,7],[7,7]],[[8,8],[8,0]]]]".into());
+        assert_eq!(
+            reduce_fully(lhs + rhs),
+            "[[[[6,7],[6,7]],[[7,7],[0,7]]],[[[8,7],[7,7]],[[8,8],[8,0]]]]".into()
+        );
 
         let lhs: FishyNumber = "[[[[6,7],[6,7]],[[7,7],[0,7]]],[[[8,7],[7,7]],[[8,8],[8,0]]]]".into();
         let rhs = "[[[[2,4],7],[6,[0,5]]],[[[6,8],[2,8]],[[2,1],[4,5]]]]".into();
-        assert_eq!(reduce_fully(lhs + rhs), "[[[[7,0],[7,7]],[[7,7],[7,8]]],[[[7,7],[8,8]],[[7,7],[8,7]]]]".into());
+        assert_eq!(
+            reduce_fully(lhs + rhs),
+            "[[[[7,0],[7,7]],[[7,7],[7,8]]],[[[7,7],[8,8]],[[7,7],[8,7]]]]".into()
+        );
 
         let lhs: FishyNumber = "[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]".into();
         let rhs = "[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]".into();
-        assert_eq!(reduce_fully(lhs + rhs), "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]".into());
+        assert_eq!(
+            reduce_fully(lhs + rhs),
+            "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]".into()
+        );
 
         let lhs: FishyNumber = "[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]".into();
         let rhs = "[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]".into();
-        assert_eq!(reduce_fully(lhs + rhs), "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]".into());
+        assert_eq!(
+            reduce_fully(lhs + rhs),
+            "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]".into()
+        );
 
         let lhs: FishyNumber = "[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]".into();
         let rhs = "[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]".into();
-        assert_eq!(reduce_fully(lhs + rhs), "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]".into());
-
+        assert_eq!(
+            reduce_fully(lhs + rhs),
+            "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]".into()
+        );
     }
 
     #[test]
