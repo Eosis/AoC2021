@@ -1,5 +1,4 @@
 use std::collections::VecDeque;
-use std::fmt::{Display, Formatter};
 
 use std::fs::read_to_string;
 use bitvec::prelude::*;
@@ -43,7 +42,7 @@ fn parse_from_str(input: &str) -> Input {
     (bits, grid)
 }
 
-fn add_borders(grid: &mut Grid, iteration: usize, bits: &BitVec) {
+fn add_borders(grid: &mut Grid, iteration: usize, _bits: &BitVec) {
     let to_add = if iteration % 2 == 0 {
         false
     } else {
