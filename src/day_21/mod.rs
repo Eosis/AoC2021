@@ -107,13 +107,16 @@ pub fn part_one(input: Input) -> usize {
     rolls * losing_score
 }
 
+type CountWinningArg = (Game, (usize, usize, usize));
+type CountWinningResult = (usize, usize);
+type Cache = HashMap<CountWinningArg, CountWinningResult>;
 fn count_winning_outcomes(
     game: Game,
     rolls: (usize, usize, usize),
-    cache: &mut HashMap<(Game, (usize, usize, usize)), (usize, usize)>,
+    cache: &mut Cache,
 ) -> (usize, usize) {
     if cache.get(&(game.clone(), rolls)).is_some() {
-        return cache.get(&(game.clone(), rolls)).unwrap().clone();
+        return *cache.get(&(game, rolls)).unwrap();
     }
 
     let next_game = iterate_game_once(game.clone(), rolls);
@@ -139,7 +142,7 @@ fn count_winning_outcomes(
 }
 
 pub fn part_two(game: Input) -> usize {
-    let mut cache: HashMap<(Game, (usize, usize, usize)), (usize, usize)> = HashMap::new();
+    let mut cache: Cache = HashMap::new();
 
     let results: Vec<_> = base_three_tuples()
         .map(|rolls| count_winning_outcomes(game.clone(), rolls, &mut cache))

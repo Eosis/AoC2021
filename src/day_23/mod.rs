@@ -121,10 +121,10 @@ impl<'a> Display for Grotto<'a> {
         println!("{:?}", self.finished_amphis);
         let mut result = String::new();
         for y in 0..=4 {
-            result.push_str("\n");
+            result.push('\n');
             for x in 0..=10 {
                 result.push_str(
-                    &positions_to_letters
+                    positions_to_letters
                         .get(&(y, x))
                         .map(|letter| letter.as_str())
                         .unwrap_or_else(|| default_char_for_row((y, x))),
@@ -155,22 +155,10 @@ impl Amphipod {
 
     fn same_type(&self, rhs: &Amphipod) -> bool {
         match self {
-            Amphipod::A(_, _) => match rhs {
-                Amphipod::A(_, _) => true,
-                _ => false,
-            },
-            Amphipod::B(_, _) => match rhs {
-                Amphipod::B(_, _) => true,
-                _ => false,
-            },
-            Amphipod::C(_, _) => match rhs {
-                Amphipod::C(_, _) => true,
-                _ => false,
-            },
-            Amphipod::D(_, _) => match rhs {
-                Amphipod::D(_, _) => true,
-                _ => false,
-            },
+            Amphipod::A(_, _) => matches!(rhs, Amphipod::A(_, _)),
+            Amphipod::B(_, _) => matches!(rhs, Amphipod::B(_, _)),
+            Amphipod::C(_, _) => matches!(rhs, Amphipod::C(_, _)),
+            Amphipod::D(_, _) => matches!(rhs, Amphipod::D(_, _)),
         }
     }
 
@@ -240,7 +228,7 @@ impl<'a> Grotto<'a> {
             .clone()
             .iter()
             .copied()
-            .filter(|amphi| amphi.in_final_location(&self))
+            .filter(|amphi| amphi.in_final_location(self))
             .collect();
         for amphi in finished_amphis {
             self.active_amphis.remove(&amphi);
@@ -465,7 +453,7 @@ fn get_unobstructed_spaces(grotto: &Grotto, amphipod: Amphipod) -> HashMap<(usiz
         explored.insert(to_add.0, to_add.1);
         let mut next_to_explore = get_adjacent_unoccupied_spaces(current_location, grotto, current_distance)
             .into_iter()
-            .filter(|(loc, _distance)| !explored.get(loc).is_some())
+            .filter(|(loc, _distance)| explored.get(loc).is_none())
             .collect();
         to_explore.append(&mut next_to_explore);
     }
@@ -501,7 +489,6 @@ fn get_possible_moves(grotto: &Grotto, amphipod: Amphipod) -> Vec<Move> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
 
     #[test]
     fn get_min_score_of_grotto() {

@@ -173,14 +173,15 @@ struct OverlappingCubes {
     rotation: (usize, usize, usize),
     equal_beacons: (usize, usize),
 }
-fn overlapping_cubes(known_beacon: &Vec<Point>, potential: &Vec<Point>) -> Option<OverlappingCubes> {
+
+fn overlapping_cubes(known_beacon: &[Point], potential: &[Point]) -> Option<OverlappingCubes> {
     for rotation in ROTATIONS.iter().copied() {
         let rotated_beacons: Vec<_> = potential
             .iter()
             .copied()
             .map(|point| rotate_point_about(point, rotation))
             .collect();
-        if let Some(equal_beacons) = check_overlap_after_rotation(&known_beacon, &rotated_beacons) {
+        if let Some(equal_beacons) = check_overlap_after_rotation(known_beacon, &rotated_beacons) {
             return Some(OverlappingCubes {
                 rotation,
                 equal_beacons,
@@ -190,7 +191,7 @@ fn overlapping_cubes(known_beacon: &Vec<Point>, potential: &Vec<Point>) -> Optio
     None
 }
 
-fn check_overlap_after_rotation(known: &Vec<Point>, potential: &Vec<Point>) -> Option<(usize, usize)> {
+fn check_overlap_after_rotation(known: &[Point], potential: &[Point]) -> Option<(usize, usize)> {
     for known_lead_idx in 0..known.len() {
         let known_lead = known[known_lead_idx];
         let known_others = known
@@ -222,7 +223,7 @@ fn check_overlap_after_rotation(known: &Vec<Point>, potential: &Vec<Point>) -> O
 
 fn transform_beacon(
     known_scanner: &(Point, Vec<Point>),
-    scanner: &Vec<Point>,
+    scanner: &[Point],
     overlap: OverlappingCubes,
 ) -> (Point, Vec<Point>) {
     let scanner_with_correct_rotation: Vec<_> = scanner

@@ -105,10 +105,7 @@ impl Computer {
     fn run_normal(&mut self, instructions: &[Instruction], input: Vec<i64>) -> Option<i64> {
         let mut input = input.into_iter();
         for (_i, instruction) in instructions.iter().enumerate() {
-            // println!("{:04}: {}", i, self);
-            if self.run_normal_instruction(*instruction, &mut input).is_err() {
-                return None;
-            }
+            self.run_normal_instruction(*instruction, &mut input).ok()?
         }
         Some(self.z)
     }
@@ -206,10 +203,7 @@ impl Computer {
     fn run_rups(&mut self, instructions: &[RupInstruction], input: Vec<i64>) -> Option<i64> {
         let mut input = input.into_iter();
         for (_i, instruction) in instructions.iter().enumerate() {
-            // println!("{:04}: {}", i, self);
-            if self.run_rup_instruction(*instruction, &mut input).is_err() {
-                return None;
-            }
+            self.run_rup_instruction(*instruction, &mut input).ok()?
         }
         Some(self.z)
     }
@@ -358,23 +352,6 @@ mod tests {
     #[test]
     fn test_some_assumptions() {
         let rup_instructions = parse_from_str_to_rups(EXAMPLE_PROGRAM);
-        // let input: Vec<i64> = vec![
-        //     3,
-        //     5,
-        //     4,
-        //     9,
-        //     4,
-        //     1,
-        //     6,
-        //     2,
-        //     6,
-        //     8,
-        //     9,
-        //     9,
-        //     3,
-        //     9,
-        // ];
-        // let input = vec![3,9,4,9,4,1,9,5,7,9,9,9,7,9];
         let input = vec![1, 3, 1, 6, 1, 1, 5, 1, 1, 3, 9, 6, 1, 7];
         let mut rup_computer = Computer::new();
         assert_eq!(rup_computer.run_rups(&rup_instructions, input), Some(0))

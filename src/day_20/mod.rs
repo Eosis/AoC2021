@@ -30,17 +30,17 @@ fn parse_from_str(input: &str) -> Input {
         .next()
         .unwrap()
         .chars()
-        .map(|c| if c == '#' { true } else { false })
+        .map(|c| c == '#')
         .collect();
     let grid = lines
         .skip(1)
-        .map(|line| line.chars().map(|c| if c == '#' { true } else { false }).collect())
+        .map(|line| line.chars().map(|c| c == '#').collect())
         .collect();
     (bits, grid)
 }
 
 fn add_borders(grid: &mut Grid, iteration: usize, _bits: &BitVec) {
-    let to_add = if iteration % 2 == 0 { false } else { true };
+    let to_add = iteration % 2 == 1;
 
     for row in grid.iter_mut() {
         row.push_front(to_add);
@@ -82,15 +82,15 @@ fn print_grid(grid: &Grid) {
 }
 
 fn set_border(grid: &mut Grid, iteration: usize, _bitmap: &BitVec) {
-    let to_set = if iteration % 2 == 1 { false } else { true };
+    let to_set = iteration % 2 == 0;
     for x in 0..grid[0].len() {
         grid[0][x] = to_set;
         grid.iter_mut().last().unwrap()[x] = to_set;
     }
 
-    for y in 0..grid.len() {
-        grid[y][0] = to_set;
-        *grid[y].iter_mut().last().unwrap() = to_set;
+    for row in grid {
+        row[0] = to_set;
+        *row.iter_mut().last().unwrap() = to_set;
     }
 }
 pub fn part_one((bitmap, mut grid): Input) -> usize {
