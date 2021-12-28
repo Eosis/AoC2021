@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
-use std::fs::read_to_string;
 use bitvec::prelude::*;
+use std::fs::read_to_string;
 use std::path::Path;
 
 type Grid = VecDeque<VecDeque<bool>>;
@@ -30,24 +30,17 @@ fn parse_from_str(input: &str) -> Input {
         .next()
         .unwrap()
         .chars()
-        .map(|c| if c == '#'  { true } else { false })
+        .map(|c| if c == '#' { true } else { false })
         .collect();
     let grid = lines
         .skip(1)
-        .map(|line| line
-            .chars()
-            .map(|c| if c == '#'  { true } else { false })
-            .collect())
+        .map(|line| line.chars().map(|c| if c == '#' { true } else { false }).collect())
         .collect();
     (bits, grid)
 }
 
 fn add_borders(grid: &mut Grid, iteration: usize, _bits: &BitVec) {
-    let to_add = if iteration % 2 == 0 {
-        false
-    } else {
-        true
-    };
+    let to_add = if iteration % 2 == 0 { false } else { true };
 
     for row in grid.iter_mut() {
         row.push_front(to_add);
@@ -64,17 +57,17 @@ fn add_borders(grid: &mut Grid, iteration: usize, _bits: &BitVec) {
     grid.push_back(blank_row);
 }
 
-
 fn number_from_offset((y, x): (usize, usize), grid: &Grid) -> usize {
     [
-        grid[y].range(x..x+3),
-        grid[y + 1].range(x..x+3),
-        grid[y + 2].range(x..x+3)
-    ].into_iter()
-        .flatten()
-        .map(|b| if *b { 1usize } else { 0usize} )
-        .reduce(|acc, b| acc << 1 | b)
-        .unwrap()
+        grid[y].range(x..x + 3),
+        grid[y + 1].range(x..x + 3),
+        grid[y + 2].range(x..x + 3),
+    ]
+    .into_iter()
+    .flatten()
+    .map(|b| if *b { 1usize } else { 0usize })
+    .reduce(|acc, b| acc << 1 | b)
+    .unwrap()
 }
 
 fn print_grid(grid: &Grid) {
@@ -88,11 +81,7 @@ fn print_grid(grid: &Grid) {
 }
 
 fn set_border(grid: &mut Grid, iteration: usize, bitmap: &BitVec) {
-    let to_set = if iteration % 2 == 1 {
-        false
-    } else {
-        true
-    };
+    let to_set = if iteration % 2 == 1 { false } else { true };
     for x in 0..grid[0].len() {
         grid[0][x] = to_set;
         grid.iter_mut().last().unwrap()[x] = to_set;
@@ -109,9 +98,7 @@ pub fn part_one((bitmap, mut grid): Input) -> usize {
         grid = iterate_image((&bitmap, grid));
         set_border(&mut grid, iteration, &bitmap);
     }
-    grid.iter().flat_map(|row| row.iter())
-        .filter(|x| **x)
-        .count()
+    grid.iter().flat_map(|row| row.iter()).filter(|x| **x).count()
 }
 
 fn iterate_image((bitmap, input_grid): (&BitVec, Grid)) -> Grid {
@@ -132,9 +119,7 @@ pub fn part_two((bitmap, mut grid): Input) -> usize {
         grid = iterate_image((&bitmap, grid));
         set_border(&mut grid, iteration, &bitmap);
     }
-    grid.iter().flat_map(|row| row.iter())
-        .filter(|x| **x)
-        .count()
+    grid.iter().flat_map(|row| row.iter()).filter(|x| **x).count()
 }
 
 #[cfg(test)]
@@ -158,26 +143,30 @@ mod tests {
         let grid = vec![
             vec![true, false, false].into(),
             vec![true, false, false].into(),
-            vec![true, false, false].into()
-        ].into();
+            vec![true, false, false].into(),
+        ]
+        .into();
         assert_eq!(number_from_offset((0, 0), &grid), 292);
         let grid = vec![
             vec![false, false, true].into(),
             vec![true, false, false].into(),
-            vec![true, false, false].into()
-        ].into();
+            vec![true, false, false].into(),
+        ]
+        .into();
         assert_eq!(number_from_offset((0, 0), &grid), 100);
         let grid = vec![
             vec![false, false, false].into(),
             vec![false, false, false].into(),
-            vec![false, false, false].into()
-        ].into();
+            vec![false, false, false].into(),
+        ]
+        .into();
         assert_eq!(number_from_offset((0, 0), &grid), 0);
         let grid = vec![
             vec![true, false, false, false].into(),
             vec![false, false, true, false].into(),
-            vec![false, false, true, false].into()
-        ].into();
+            vec![false, false, true, false].into(),
+        ]
+        .into();
         assert_eq!(number_from_offset((0, 1), &grid), 18);
     }
 }

@@ -1,8 +1,6 @@
-use std::fs::read_to_string;
-use bitvec::prelude::*;
-use std::path::Path;
 use hashbrown::HashMap;
-use itertools::Itertools;
+use std::fs::read_to_string;
+use std::path::Path;
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct Game {
@@ -11,31 +9,37 @@ pub struct Game {
     player_two: usize,
     player_two_score: usize,
     target: usize,
-    player_turn: usize
+    player_turn: usize,
 }
 type Input = Game;
 
 pub fn solve_part_1() -> Result<(), ()> {
-    println!("Solution: {}", part_one(Game {
-        player_one: 6,
-        player_two: 8,
-        player_one_score: 0,
-        player_two_score: 0,
-        target: 1000,
-        player_turn: 0
-    }));
+    println!(
+        "Solution: {}",
+        part_one(Game {
+            player_one: 6,
+            player_two: 8,
+            player_one_score: 0,
+            player_two_score: 0,
+            target: 1000,
+            player_turn: 0
+        })
+    );
     Ok(())
 }
 
 pub fn solve_part_2() -> Result<(), ()> {
-    println!("Solution: {}", part_two(Game {
-        player_one: 6,
-        player_two: 8,
-        player_one_score: 0,
-        player_two_score: 0,
-        target: 21,
-        player_turn: 0
-    }));
+    println!(
+        "Solution: {}",
+        part_two(Game {
+            player_one: 6,
+            player_two: 8,
+            player_one_score: 0,
+            player_two_score: 0,
+            target: 21,
+            player_turn: 0
+        })
+    );
     Ok(())
 }
 
@@ -50,8 +54,7 @@ fn parse_from_str(input: &str) -> Input {
 
 fn iterate_game(mut game: Game) -> (usize, usize) {
     let mut rolls = 0;
-    let mut dice_iter = (1usize..=100usize)
-        .cycle();
+    let mut dice_iter = (1usize..=100usize).cycle();
     let Game {
         mut player_one,
         mut player_two,
@@ -70,9 +73,15 @@ fn iterate_game(mut game: Game) -> (usize, usize) {
         let new_roll: usize = dice_iter.by_ref().take(3).sum();
         rolls += 1;
         *current_player += new_roll;
-        let scored = if *current_player % 10 == 0 { 10 } else { *current_player % 10 };
+        let scored = if *current_player % 10 == 0 {
+            10
+        } else {
+            *current_player % 10
+        };
         *current_score += scored;
-        if *current_player > 10 { *current_player %= 10 };
+        if *current_player > 10 {
+            *current_player %= 10
+        };
     }
 
     let losing_score = if player_one_score >= target {
@@ -89,10 +98,16 @@ fn iterate_game_once(mut game: Game, new_rolls: (usize, usize, usize)) -> Game {
     } else {
         (&mut game.player_two, &mut game.player_two_score)
     };
-    *current_player += (new_rolls.0 + new_rolls.1 + new_rolls.2);
-    let scored = if *current_player % 10 == 0 { 10 } else { *current_player % 10 };
+    *current_player += new_rolls.0 + new_rolls.1 + new_rolls.2;
+    let scored = if *current_player % 10 == 0 {
+        10
+    } else {
+        *current_player % 10
+    };
     *current_score += scored;
-    if *current_player > 10 { *current_player %= 10 };
+    if *current_player > 10 {
+        *current_player %= 10
+    };
     game.player_turn += 1;
     game.player_turn %= 2;
     game
@@ -103,10 +118,11 @@ pub fn part_one(input: Input) -> usize {
     rolls * losing_score
 }
 
-fn count_winning_outcomes(game: Game,
-                          rolls: (usize, usize, usize),
-                          cache: &mut HashMap<(Game, (usize, usize, usize)), (usize, usize)>)
-    -> (usize, usize) {
+fn count_winning_outcomes(
+    game: Game,
+    rolls: (usize, usize, usize),
+    cache: &mut HashMap<(Game, (usize, usize, usize)), (usize, usize)>,
+) -> (usize, usize) {
     if cache.get(&(game.clone(), rolls)).is_some() {
         return cache.get(&(game.clone(), rolls)).unwrap().clone();
     }
@@ -125,23 +141,20 @@ fn count_winning_outcomes(game: Game,
     }
 
     let results: Vec<_> = base_three_tuples()
-        .map(|rolls| {
-            count_winning_outcomes(next_game.clone(), rolls, cache)
-        }).collect();
+        .map(|rolls| count_winning_outcomes(next_game.clone(), rolls, cache))
+        .collect();
     let player_one_wins = results.iter().map(|(one_wins, _)| one_wins).sum();
     let player_two_wins = results.iter().map(|(_, two_wins)| two_wins).sum();
     cache.insert((game, rolls), (player_one_wins, player_two_wins));
     (player_one_wins, player_two_wins)
 }
 
-
 pub fn part_two(game: Input) -> usize {
     let mut cache: HashMap<(Game, (usize, usize, usize)), (usize, usize)> = HashMap::new();
 
     let results: Vec<_> = base_three_tuples()
-        .map(|rolls| {
-            count_winning_outcomes(game.clone(), rolls, &mut cache)
-        }).collect();
+        .map(|rolls| count_winning_outcomes(game.clone(), rolls, &mut cache))
+        .collect();
     let player_one_wins = results.iter().map(|(one_wins, _)| one_wins).sum();
     let player_two_wins = results.iter().map(|(_, two_wins)| two_wins).sum();
     if player_one_wins > player_two_wins {
@@ -151,20 +164,14 @@ pub fn part_two(game: Input) -> usize {
     }
 }
 
-fn base_three_tuples() -> impl Iterator<Item=(usize, usize, usize)> {
-    (0usize..((3 * 3 * 3) as usize)).map( |i|
-        (
-            (i / (3 * 3)) % 3 + 1,
-            (i / 3 ) % 3 + 1,
-            i % 3 + 1,
-        )
-    )
+fn base_three_tuples() -> impl Iterator<Item = (usize, usize, usize)> {
+    (0usize..((3 * 3 * 3) as usize)).map(|i| ((i / (3 * 3)) % 3 + 1, (i / 3) % 3 + 1, i % 3 + 1))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-        #[test]
+    #[test]
     fn test_part_one() {
         let game = Game {
             player_one: 4,
