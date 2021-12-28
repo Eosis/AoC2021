@@ -1,14 +1,7 @@
+use hashbrown::{HashMap, HashSet};
 use std::collections::VecDeque;
 use std::fmt::{Display, Formatter};
-use bitvec::prelude::*;
-use hashbrown::{HashMap, HashSet};
-use regex::Regex;
-use std::fs::read_to_string;
-use std::io::stdin;
-use std::path::Path;
-use itertools::min;
 
-type Input<'a> = Grotto<'a>;
 pub fn solve_part_1() -> Result<(), ()> {
     println!("{}", part_one());
     Ok(())
@@ -29,11 +22,17 @@ fn part_one() -> usize {
     let map = grotto_map();
     let grotto = Grotto {
         active_amphis: vec![
-            Amphipod::B(1, 2), Amphipod::D(2, 2),
-            Amphipod::B(1, 4), Amphipod::C(2, 4),
-            Amphipod::C(1, 6), Amphipod::A(2, 6),
-            Amphipod::D(1, 8), Amphipod::A(2, 8)
-        ].into_iter().collect(),
+            Amphipod::B(1, 2),
+            Amphipod::D(2, 2),
+            Amphipod::B(1, 4),
+            Amphipod::C(2, 4),
+            Amphipod::C(1, 6),
+            Amphipod::A(2, 6),
+            Amphipod::D(1, 8),
+            Amphipod::A(2, 8),
+        ]
+        .into_iter()
+        .collect(),
         finished_amphis: vec![].into_iter().collect(),
         current_score: 0,
         map_depth: 2,
@@ -56,11 +55,25 @@ fn part_two() -> usize {
     let map = bigger_grotto_map();
     let grotto = Grotto {
         active_amphis: vec![
-            Amphipod::B(1, 2), Amphipod::D(2, 2), Amphipod::D(3, 2), Amphipod::D(4, 2),
-            Amphipod::B(1, 4), Amphipod::C(2, 4), Amphipod::B(3, 4), Amphipod::C(4, 4),
-            Amphipod::C(1, 6), Amphipod::B(2, 6), Amphipod::A(3, 6), Amphipod::A(4, 6),
-            Amphipod::D(1, 8), Amphipod::A(2, 8), Amphipod::C(3, 8), Amphipod::A(4, 8)
-        ].into_iter().collect(),
+            Amphipod::B(1, 2),
+            Amphipod::D(2, 2),
+            Amphipod::D(3, 2),
+            Amphipod::D(4, 2),
+            Amphipod::B(1, 4),
+            Amphipod::C(2, 4),
+            Amphipod::B(3, 4),
+            Amphipod::C(4, 4),
+            Amphipod::C(1, 6),
+            Amphipod::B(2, 6),
+            Amphipod::A(3, 6),
+            Amphipod::A(4, 6),
+            Amphipod::D(1, 8),
+            Amphipod::A(2, 8),
+            Amphipod::C(3, 8),
+            Amphipod::A(4, 8),
+        ]
+        .into_iter()
+        .collect(),
         finished_amphis: vec![].into_iter().collect(),
         current_score: 0,
         map_depth: 4,
@@ -76,7 +89,7 @@ enum Amphipod {
     A(usize, usize),
     B(usize, usize),
     C(usize, usize),
-    D(usize, usize)
+    D(usize, usize),
 }
 impl Display for Amphipod {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -110,7 +123,12 @@ impl<'a> Display for Grotto<'a> {
         for y in 0..=4 {
             result.push_str("\n");
             for x in 0..=10 {
-                result.push_str(&positions_to_letters.get(&(y, x)).map(|letter| letter.as_str()).unwrap_or_else(||default_char_for_row((y, x))));
+                result.push_str(
+                    &positions_to_letters
+                        .get(&(y, x))
+                        .map(|letter| letter.as_str())
+                        .unwrap_or_else(|| default_char_for_row((y, x))),
+                );
             }
         }
         write!(f, "{}", result)
@@ -189,11 +207,11 @@ impl Amphipod {
 struct Move {
     from: Amphipod,
     to: Amphipod,
-    cost: usize
+    cost: usize,
 }
 
 impl Move {
-    fn new(from: Amphipod, to:((usize, usize), usize)) -> Self {
+    fn new(from: Amphipod, to: ((usize, usize), usize)) -> Self {
         Move {
             from,
             to: from.in_new_loc(to.0),
@@ -217,7 +235,8 @@ impl<'a> Grotto<'a> {
     }
 
     fn move_finished_amphis(&mut self) {
-        let finished_amphis: Vec<_> = self.active_amphis
+        let finished_amphis: Vec<_> = self
+            .active_amphis
             .clone()
             .iter()
             .copied()
@@ -242,13 +261,13 @@ fn make_move<'a>(grotto: &'a Grotto, move_to_make: &Move) -> Grotto<'a> {
     new_grotto.move_finished_amphis();
     new_grotto
 }
-const DEBUG: bool  = false;
+const DEBUG: bool = false;
 fn get_min_score(mut grotto: Grotto, min_score: &mut usize) -> Option<usize> {
     if grotto.current_score >= *min_score {
         if DEBUG {
             println!("Exit Early");
         }
-        return None
+        return None;
     }
 
     grotto.move_finished_amphis();
@@ -258,7 +277,7 @@ fn get_min_score(mut grotto: Grotto, min_score: &mut usize) -> Option<usize> {
         if DEBUG {
             println!("fuct");
         }
-        return None
+        return None;
     }
     for to_make in available_moves {
         if DEBUG {
@@ -266,9 +285,9 @@ fn get_min_score(mut grotto: Grotto, min_score: &mut usize) -> Option<usize> {
         }
         let new_grotto = make_move(&grotto, &to_make);
         if DEBUG {
-            println!("New state: \n{}\n" , new_grotto);
+            println!("New state: \n{}\n", new_grotto);
             let mut buf = String::new();
-            let x = std::io::stdin().read_line(&mut buf).unwrap();
+            let _x = std::io::stdin().read_line(&mut buf).unwrap();
         }
         if new_grotto.is_finished() && new_grotto.current_score < *min_score {
             *min_score = new_grotto.current_score;
@@ -282,59 +301,62 @@ fn get_min_score(mut grotto: Grotto, min_score: &mut usize) -> Option<usize> {
 
 fn grotto_map() -> HashMap<(usize, usize), Vec<(usize, usize)>> {
     vec![
-        ( (0, 0), vec![(0, 1)] ),
-        ( (0, 1), vec![(0, 0), (0, 2)] ),
-        ( (0, 2), vec![(0, 1), (0, 3), (1, 2)] ),
-        ( (0, 3), vec![(0, 2), (0, 4)] ),
-        ( (0, 4), vec![(0, 3), (0, 5), (1, 4)] ),
-        ( (0, 5), vec![(0, 4), (0, 6)] ),
-        ( (0, 6), vec![(0, 5), (0, 7), (1, 6)] ),
-        ( (0, 7), vec![(0, 6), (0, 8)] ),
-        ( (0, 8), vec![(0, 7), (0, 9), (1, 8)]),
-        ( (0, 9), vec![(0, 8), (0, 10)]),
-        ( (0, 10), vec![(0, 9)] ),
-        ( (1, 2), vec![(0, 2), (2, 2)]),
-        ( (2, 2), vec![(1, 2)]),
-        ( (1, 4), vec![(0, 4), (2, 4)]),
-        ( (2, 4), vec![(1, 4)]),
-        ( (1, 6), vec![(0, 6), (2, 6)]),
-        ( (2, 6), vec![(1, 6)]),
-        ( (1, 8), vec![(0, 8), (2, 8)]),
-        ( (2, 8), vec![(1, 8)])
-    ].into_iter().collect()
+        ((0, 0), vec![(0, 1)]),
+        ((0, 1), vec![(0, 0), (0, 2)]),
+        ((0, 2), vec![(0, 1), (0, 3), (1, 2)]),
+        ((0, 3), vec![(0, 2), (0, 4)]),
+        ((0, 4), vec![(0, 3), (0, 5), (1, 4)]),
+        ((0, 5), vec![(0, 4), (0, 6)]),
+        ((0, 6), vec![(0, 5), (0, 7), (1, 6)]),
+        ((0, 7), vec![(0, 6), (0, 8)]),
+        ((0, 8), vec![(0, 7), (0, 9), (1, 8)]),
+        ((0, 9), vec![(0, 8), (0, 10)]),
+        ((0, 10), vec![(0, 9)]),
+        ((1, 2), vec![(0, 2), (2, 2)]),
+        ((2, 2), vec![(1, 2)]),
+        ((1, 4), vec![(0, 4), (2, 4)]),
+        ((2, 4), vec![(1, 4)]),
+        ((1, 6), vec![(0, 6), (2, 6)]),
+        ((2, 6), vec![(1, 6)]),
+        ((1, 8), vec![(0, 8), (2, 8)]),
+        ((2, 8), vec![(1, 8)]),
+    ]
+    .into_iter()
+    .collect()
 }
-
 
 fn bigger_grotto_map() -> HashMap<(usize, usize), Vec<(usize, usize)>> {
     vec![
-        ( (0, 0), vec![(0, 1)] ),
-        ( (0, 1), vec![(0, 0), (0, 2)] ),
-        ( (0, 2), vec![(0, 1), (0, 3), (1, 2)] ),
-        ( (0, 3), vec![(0, 2), (0, 4)] ),
-        ( (0, 4), vec![(0, 3), (0, 5), (1, 4)] ),
-        ( (0, 5), vec![(0, 4), (0, 6)] ),
-        ( (0, 6), vec![(0, 5), (0, 7), (1, 6)] ),
-        ( (0, 7), vec![(0, 6), (0, 8)] ),
-        ( (0, 8), vec![(0, 7), (0, 9), (1, 8)]),
-        ( (0, 9), vec![(0, 8), (0, 10)]),
-        ( (0, 10), vec![(0, 9)] ),
-        ( (1, 2), vec![(0, 2), (2, 2)]),
-        ( (2, 2), vec![(1, 2), (3, 2)]),
-        ( (3, 2), vec![(2, 2), (4, 2)]),
-        ( (4, 2), vec![(3, 2)]),
-        ( (1, 4), vec![(0, 4), (2, 4)]),
-        ( (2, 4), vec![(1, 4), (3, 4)]),
-        ( (3, 4), vec![(2, 4), (4, 4)]),
-        ( (4, 4), vec![(3, 4)]),
-        ( (1, 6), vec![(0, 6), (2, 6)]),
-        ( (2, 6), vec![(1, 6), (3, 6)]),
-        ( (3, 6), vec![(2, 6), (4, 6)]),
-        ( (4, 6), vec![(3, 6)]),
-        ( (1, 8), vec![(0, 8), (2, 8)]),
-        ( (2, 8), vec![(1, 8), (3, 8)]),
-        ( (3, 8), vec![(2, 8), (4, 8)]),
-        ( (4, 8), vec![(3, 8)])
-    ].into_iter().collect()
+        ((0, 0), vec![(0, 1)]),
+        ((0, 1), vec![(0, 0), (0, 2)]),
+        ((0, 2), vec![(0, 1), (0, 3), (1, 2)]),
+        ((0, 3), vec![(0, 2), (0, 4)]),
+        ((0, 4), vec![(0, 3), (0, 5), (1, 4)]),
+        ((0, 5), vec![(0, 4), (0, 6)]),
+        ((0, 6), vec![(0, 5), (0, 7), (1, 6)]),
+        ((0, 7), vec![(0, 6), (0, 8)]),
+        ((0, 8), vec![(0, 7), (0, 9), (1, 8)]),
+        ((0, 9), vec![(0, 8), (0, 10)]),
+        ((0, 10), vec![(0, 9)]),
+        ((1, 2), vec![(0, 2), (2, 2)]),
+        ((2, 2), vec![(1, 2), (3, 2)]),
+        ((3, 2), vec![(2, 2), (4, 2)]),
+        ((4, 2), vec![(3, 2)]),
+        ((1, 4), vec![(0, 4), (2, 4)]),
+        ((2, 4), vec![(1, 4), (3, 4)]),
+        ((3, 4), vec![(2, 4), (4, 4)]),
+        ((4, 4), vec![(3, 4)]),
+        ((1, 6), vec![(0, 6), (2, 6)]),
+        ((2, 6), vec![(1, 6), (3, 6)]),
+        ((3, 6), vec![(2, 6), (4, 6)]),
+        ((4, 6), vec![(3, 6)]),
+        ((1, 8), vec![(0, 8), (2, 8)]),
+        ((2, 8), vec![(1, 8), (3, 8)]),
+        ((3, 8), vec![(2, 8), (4, 8)]),
+        ((4, 8), vec![(3, 8)]),
+    ]
+    .into_iter()
+    .collect()
 }
 
 fn is_corridor((y, _): (usize, usize)) -> bool {
@@ -359,16 +381,17 @@ fn is_allowed_room(prospect: Amphipod) -> bool {
 }
 
 fn is_occupied((y, x): (usize, usize), grotto: &Grotto) -> bool {
-    grotto.all_amphis().iter().any(|amphi| amphi.destructure_location() == (y, x))
+    grotto
+        .all_amphis()
+        .iter()
+        .any(|amphi| amphi.destructure_location() == (y, x))
 }
 
 fn room_contains_other_type(prospect: Amphipod, grotto: &Grotto) -> bool {
     let prospect_location = prospect.destructure_location();
-    let mut in_same_room = grotto.active_amphis
-        .iter()
-        .filter(|amphi| {
-            let loc = amphi.destructure_location();
-            loc.0 > 0 && loc.1 == prospect_location.1
+    let mut in_same_room = grotto.active_amphis.iter().filter(|amphi| {
+        let loc = amphi.destructure_location();
+        loc.0 > 0 && loc.1 == prospect_location.1
     });
     in_same_room.any(|amphi| !prospect.same_type(amphi))
 }
@@ -413,8 +436,13 @@ fn able_to_stop(current: Amphipod, prospect: Amphipod, grotto: &Grotto) -> bool 
 }
 
 type Distance = usize;
-fn get_adjacent_unoccupied_spaces(location: (usize, usize), grotto: &Grotto, distance: usize) -> VecDeque<((usize, usize), Distance)> {
-    grotto.map
+fn get_adjacent_unoccupied_spaces(
+    location: (usize, usize),
+    grotto: &Grotto,
+    distance: usize,
+) -> VecDeque<((usize, usize), Distance)> {
+    grotto
+        .map
         .get(&location)
         .unwrap()
         .iter()
@@ -426,7 +454,7 @@ fn get_adjacent_unoccupied_spaces(location: (usize, usize), grotto: &Grotto, dis
 
 fn get_unobstructed_spaces(grotto: &Grotto, amphipod: Amphipod) -> HashMap<(usize, usize), Distance> {
     let current_location = amphipod.destructure_location();
-    let mut current_distance = 0;
+    let current_distance = 0;
     let mut to_explore = get_adjacent_unoccupied_spaces(current_location, grotto, current_distance);
     let mut explored: HashMap<(usize, usize), Distance> = HashMap::new();
 
@@ -445,32 +473,35 @@ fn get_unobstructed_spaces(grotto: &Grotto, amphipod: Amphipod) -> HashMap<(usiz
 }
 
 fn get_all_possible_moves(grotto: &Grotto) -> Vec<Move> {
-    let all: Vec<Move> = grotto.active_amphis.iter()
+    let all: Vec<Move> = grotto
+        .active_amphis
+        .iter()
         .flat_map(|amphi| get_possible_moves(grotto, *amphi))
         .collect();
-    if let Some(possible) = all.iter().copied().find(|possible| possible.to.in_final_location(grotto)) {
+    if let Some(possible) = all
+        .iter()
+        .copied()
+        .find(|possible| possible.to.in_final_location(grotto))
+    {
         vec![possible]
     } else {
         all
     }
-
 }
 
 fn get_possible_moves(grotto: &Grotto, amphipod: Amphipod) -> Vec<Move> {
     let unobstructed_spaces = get_unobstructed_spaces(grotto, amphipod);
     unobstructed_spaces
         .into_iter()
-        .filter(|(loc, _)| {
-            able_to_stop(amphipod, amphipod.in_new_loc(*loc), grotto)
-        })
+        .filter(|(loc, _)| able_to_stop(amphipod, amphipod.in_new_loc(*loc), grotto))
         .map(|item| Move::new(amphipod, item))
         .collect()
 }
 
 #[cfg(test)]
 mod tests {
-    use itertools::min;
     use super::*;
+    
 
     #[test]
     fn get_min_score_of_grotto() {
@@ -478,11 +509,17 @@ mod tests {
         let mut min = usize::MAX;
         let grotto = Grotto {
             active_amphis: vec![
-                Amphipod::A(2, 2), Amphipod::B(1, 2),
-                Amphipod::D(2, 4), Amphipod::C(1, 4),
-                Amphipod::C(2, 6), Amphipod::B(1, 6),
-                Amphipod::A(2, 8), Amphipod::D(1, 8)
-            ].into_iter().collect(),
+                Amphipod::A(2, 2),
+                Amphipod::B(1, 2),
+                Amphipod::D(2, 4),
+                Amphipod::C(1, 4),
+                Amphipod::C(2, 6),
+                Amphipod::B(1, 6),
+                Amphipod::A(2, 8),
+                Amphipod::D(1, 8),
+            ]
+            .into_iter()
+            .collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
@@ -498,11 +535,25 @@ mod tests {
         let mut min = usize::MAX;
         let grotto = Grotto {
             active_amphis: vec![
-                Amphipod::B(1, 2), Amphipod::D(2, 2), Amphipod::D(3, 2), Amphipod::A(4, 2),
-                Amphipod::C(1, 4), Amphipod::C(2, 4), Amphipod::B(3, 4), Amphipod::D(4, 4),
-                Amphipod::B(1, 6), Amphipod::B(2, 6), Amphipod::A(3, 6), Amphipod::C(4, 6),
-                Amphipod::D(1, 8), Amphipod::A(2, 8), Amphipod::C(3, 8), Amphipod::A(4, 8),
-            ].into_iter().collect(),
+                Amphipod::B(1, 2),
+                Amphipod::D(2, 2),
+                Amphipod::D(3, 2),
+                Amphipod::A(4, 2),
+                Amphipod::C(1, 4),
+                Amphipod::C(2, 4),
+                Amphipod::B(3, 4),
+                Amphipod::D(4, 4),
+                Amphipod::B(1, 6),
+                Amphipod::B(2, 6),
+                Amphipod::A(3, 6),
+                Amphipod::C(4, 6),
+                Amphipod::D(1, 8),
+                Amphipod::A(2, 8),
+                Amphipod::C(3, 8),
+                Amphipod::A(4, 8),
+            ]
+            .into_iter()
+            .collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
@@ -515,10 +566,8 @@ mod tests {
     #[test]
     fn test_get_unobstructed_spaces() {
         let map = grotto_map();
-        let mut grotto = Grotto {
-            active_amphis: vec![
-                Amphipod::A(2, 2), Amphipod::B(1, 2)
-            ].into_iter().collect(),
+        let grotto = Grotto {
+            active_amphis: vec![Amphipod::A(2, 2), Amphipod::B(1, 2)].into_iter().collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
@@ -536,11 +585,30 @@ mod tests {
             .map(|(location, _)| location)
             .collect();
 
-        assert_eq!(unobstructed_spaces, vec![
-            (0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
-            (0, 6), (0, 7), (0, 8), (0, 9), (0, 10), (1, 4),
-            (1, 6), (1, 8), (2, 4), (2, 6), (2, 8)
-        ].into_iter().collect());
+        assert_eq!(
+            unobstructed_spaces,
+            vec![
+                (0, 0),
+                (0, 1),
+                (0, 2),
+                (0, 3),
+                (0, 4),
+                (0, 5),
+                (0, 6),
+                (0, 7),
+                (0, 8),
+                (0, 9),
+                (0, 10),
+                (1, 4),
+                (1, 6),
+                (1, 8),
+                (2, 4),
+                (2, 6),
+                (2, 8)
+            ]
+            .into_iter()
+            .collect()
+        );
         let distances_with_spaces: HashSet<_> = get_unobstructed_spaces(&grotto, Amphipod::B(1, 2))
             .into_iter()
             .collect();
@@ -551,10 +619,8 @@ mod tests {
     #[test]
     fn test_get_possible_moves() {
         let map = grotto_map();
-        let mut grotto = Grotto {
-            active_amphis: vec![
-                Amphipod::A(2, 2), Amphipod::B(1, 2)
-            ].into_iter().collect(),
+        let grotto = Grotto {
+            active_amphis: vec![Amphipod::A(2, 2), Amphipod::B(1, 2)].into_iter().collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
@@ -562,61 +628,69 @@ mod tests {
         };
         assert_eq!(get_possible_moves(&grotto, Amphipod::A(2, 2)), vec![]);
         assert_eq!(
-            get_possible_moves(&grotto, Amphipod::B(1, 2)).into_iter().collect::<HashSet<_>>(),
+            get_possible_moves(&grotto, Amphipod::B(1, 2))
+                .into_iter()
+                .collect::<HashSet<_>>(),
             vec![
-                ((0, 1), 2), ((0, 9), 8), ((2, 4), 5), ((0, 3), 2),
-                ((0, 5), 4), ((0, 0), 3), ((0, 7), 6), ((0, 10), 9)
+                ((0, 1), 2),
+                ((0, 9), 8),
+                ((2, 4), 5),
+                ((0, 3), 2),
+                ((0, 5), 4),
+                ((0, 0), 3),
+                ((0, 7), 6),
+                ((0, 10), 9)
             ]
-                .into_iter()
-                .map(|item| Move::new(Amphipod::B(1, 2), item))
-                .collect::<HashSet<_>>()
+            .into_iter()
+            .map(|item| Move::new(Amphipod::B(1, 2), item))
+            .collect::<HashSet<_>>()
         );
 
-        let mut grotto = Grotto {
-            active_amphis: vec![
-                Amphipod::A(0, 0), Amphipod::B(2, 2)
-            ].into_iter().collect(),
+        let grotto = Grotto {
+            active_amphis: vec![Amphipod::A(0, 0), Amphipod::B(2, 2)].into_iter().collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
             map_depth: 2,
         };
         assert_eq!(
-            get_possible_moves(&grotto, Amphipod::A(0, 0)).into_iter().collect::<HashSet<_>>(),
+            get_possible_moves(&grotto, Amphipod::A(0, 0))
+                .into_iter()
+                .collect::<HashSet<_>>(),
             vec![]
                 .into_iter()
                 .map(|item| Move::new(Amphipod::B(1, 2), item))
                 .collect::<HashSet<_>>()
         );
 
-        let mut grotto = Grotto {
-            active_amphis: vec![
-                Amphipod::A(0, 0), Amphipod::B(0, 1)
-            ].into_iter().collect(),
+        let grotto = Grotto {
+            active_amphis: vec![Amphipod::A(0, 0), Amphipod::B(0, 1)].into_iter().collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
             map_depth: 2,
         };
         assert_eq!(
-            get_possible_moves(&grotto, Amphipod::A(0, 0)).into_iter().collect::<HashSet<_>>(),
+            get_possible_moves(&grotto, Amphipod::A(0, 0))
+                .into_iter()
+                .collect::<HashSet<_>>(),
             vec![]
                 .into_iter()
                 .map(|item| Move::new(Amphipod::B(1, 2), item))
                 .collect::<HashSet<_>>()
         );
 
-        let mut grotto = Grotto {
-            active_amphis: vec![
-                Amphipod::A(0, 0), Amphipod::B(0, 8)
-            ].into_iter().collect(),
+        let grotto = Grotto {
+            active_amphis: vec![Amphipod::A(0, 0), Amphipod::B(0, 8)].into_iter().collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
             map_depth: 2,
         };
         assert_eq!(
-            get_possible_moves(&grotto, Amphipod::A(0, 0)).into_iter().collect::<HashSet<_>>(),
+            get_possible_moves(&grotto, Amphipod::A(0, 0))
+                .into_iter()
+                .collect::<HashSet<_>>(),
             vec![((2, 2), 4)]
                 .into_iter()
                 .map(|item| Move::new(Amphipod::A(0, 0), item))
@@ -626,13 +700,18 @@ mod tests {
 
     #[test]
     fn test_get_bigger_possible_moves() {
-        let map = grotto_map();
+        let _map = grotto_map();
         let map = bigger_grotto_map();
-        let mut min = usize::MAX;
+        let _min = usize::MAX;
         let grotto = Grotto {
             active_amphis: vec![
-                Amphipod::B(1, 2), Amphipod::D(2, 2), Amphipod::D(3, 2), Amphipod::A(4, 2),
-            ].into_iter().collect(),
+                Amphipod::B(1, 2),
+                Amphipod::D(2, 2),
+                Amphipod::D(3, 2),
+                Amphipod::A(4, 2),
+            ]
+            .into_iter()
+            .collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
@@ -644,59 +723,68 @@ mod tests {
     #[test]
     fn check_score() {
         let map = grotto_map();
-        let mut grotto = Grotto {
-            active_amphis: vec![
-                Amphipod::A(0, 0), Amphipod::D(0, 10)
-            ].into_iter().collect(),
+        let grotto = Grotto {
+            active_amphis: vec![Amphipod::A(0, 0), Amphipod::D(0, 10)].into_iter().collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
             map_depth: 2,
         };
         println!("{}", grotto);
-        let set_of_moves = get_possible_moves(&grotto, Amphipod::D(0, 10)).into_iter().collect::<HashSet<_>>();
-        assert!(set_of_moves.contains(&Move { from: Amphipod::D(0, 10), to: Amphipod::D(2, 8), cost: 4000}))
+        let set_of_moves = get_possible_moves(&grotto, Amphipod::D(0, 10))
+            .into_iter()
+            .collect::<HashSet<_>>();
+        assert!(set_of_moves.contains(&Move {
+            from: Amphipod::D(0, 10),
+            to: Amphipod::D(2, 8),
+            cost: 4000
+        }))
     }
 
     #[test]
     fn check_get_all_possible_moves() {
         let map = grotto_map();
-        let mut grotto = Grotto {
-            active_amphis: vec![
-                Amphipod::A(0, 0)
-            ].into_iter().collect(),
+        let grotto = Grotto {
+            active_amphis: vec![Amphipod::A(0, 0)].into_iter().collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
             map_depth: 2,
         };
         let possible_moves = get_all_possible_moves(&grotto).into_iter().collect::<HashSet<_>>();
-        assert!(possible_moves
-            .contains(&Move { from: Amphipod::D(0, 10), to: Amphipod::D(2, 8), cost: 4000}));
-        assert!(possible_moves.contains(&Move { from: Amphipod::A(0, 0), to: Amphipod::A(2, 2), cost: 4}));
-        let mut grotto = Grotto {
-            active_amphis: vec![
-                Amphipod::A(0, 7), Amphipod::D(2, 2)
-            ].into_iter().collect(),
+        assert!(possible_moves.contains(&Move {
+            from: Amphipod::D(0, 10),
+            to: Amphipod::D(2, 8),
+            cost: 4000
+        }));
+        assert!(possible_moves.contains(&Move {
+            from: Amphipod::A(0, 0),
+            to: Amphipod::A(2, 2),
+            cost: 4
+        }));
+        let grotto = Grotto {
+            active_amphis: vec![Amphipod::A(0, 7), Amphipod::D(2, 2)].into_iter().collect(),
             finished_amphis: vec![].into_iter().collect(),
             current_score: 0,
             map: &map,
             map_depth: 2,
         };
         let possible_moves = get_all_possible_moves(&grotto).into_iter().collect::<HashSet<_>>();
-        assert!(possible_moves
-            .contains(&Move { from: Amphipod::D(2, 2), to: Amphipod::D(0, 0), cost: 4000}));
+        assert!(possible_moves.contains(&Move {
+            from: Amphipod::D(2, 2),
+            to: Amphipod::D(0, 0),
+            cost: 4000
+        }));
         assert!(!possible_moves
             .into_iter()
             .map(|example_move| (example_move.from, example_move.to))
-            .any(|amphis| amphis == (Amphipod::A(0, 7), Amphipod::A(2, 1)))
-        )
+            .any(|amphis| amphis == (Amphipod::A(0, 7), Amphipod::A(2, 1))))
     }
 
     #[test]
     fn check_failing_case() {
         let map = grotto_map();
-        let mut grotto = Grotto {
+        let grotto = Grotto {
             active_amphis: vec![Amphipod::A(0, 0)].into_iter().collect(),
             finished_amphis: vec![Amphipod::A(2, 2)].into_iter().collect(),
             current_score: 0,
@@ -705,9 +793,16 @@ mod tests {
         };
         let possible_moves = get_all_possible_moves(&grotto).into_iter().collect::<HashSet<_>>();
         assert_eq!(possible_moves.iter().count(), 1);
-        assert!(possible_moves
-            .contains(&Move { from: Amphipod::A(0, 0), to: Amphipod::A(1, 2), cost: 3}));
-        assert!(!possible_moves.contains(&Move { from: Amphipod::A(0, 0), to: Amphipod::A(2, 2), cost: 4}));
+        assert!(possible_moves.contains(&Move {
+            from: Amphipod::A(0, 0),
+            to: Amphipod::A(1, 2),
+            cost: 3
+        }));
+        assert!(!possible_moves.contains(&Move {
+            from: Amphipod::A(0, 0),
+            to: Amphipod::A(2, 2),
+            cost: 4
+        }));
     }
 
     #[test]
@@ -720,33 +815,31 @@ mod tests {
             map: &map,
             map_depth: 2,
         };
-        grotto.active_amphis = vec![
-            Amphipod::A(0, 0), Amphipod::D(0, 10)
-        ].into_iter().collect();
+        grotto.active_amphis = vec![Amphipod::A(0, 0), Amphipod::D(0, 10)].into_iter().collect();
         assert!(Amphipod::A(2, 2).in_final_location(&grotto));
         assert!(!Amphipod::A(0, 0).in_final_location(&grotto));
 
-        grotto.active_amphis = vec![
-            Amphipod::A(1, 2), Amphipod::A(2, 2)
-        ].into_iter().collect();
+        grotto.active_amphis = vec![Amphipod::A(1, 2), Amphipod::A(2, 2)].into_iter().collect();
         assert!(Amphipod::A(1, 2).in_final_location(&grotto));
         assert!(Amphipod::A(2, 2).in_final_location(&grotto));
 
-        grotto.active_amphis = vec![
-            Amphipod::A(1, 2), Amphipod::B(2, 2)
-        ].into_iter().collect();
+        grotto.active_amphis = vec![Amphipod::A(1, 2), Amphipod::B(2, 2)].into_iter().collect();
         assert!(!Amphipod::A(1, 2).in_final_location(&grotto));
         assert!(!Amphipod::B(2, 2).in_final_location(&grotto));
 
         // Bigger Examples
         grotto.map_depth = 4;
         grotto.active_amphis = vec![
-            Amphipod::A(1, 2), Amphipod::B(2, 2), Amphipod::A(3, 2), Amphipod::A(4, 2)
-        ].into_iter().collect();
+            Amphipod::A(1, 2),
+            Amphipod::B(2, 2),
+            Amphipod::A(3, 2),
+            Amphipod::A(4, 2),
+        ]
+        .into_iter()
+        .collect();
         assert!(!Amphipod::A(1, 2).in_final_location(&grotto));
         assert!(!Amphipod::B(2, 2).in_final_location(&grotto));
         assert!(Amphipod::A(3, 2).in_final_location(&grotto));
         assert!(Amphipod::A(4, 2).in_final_location(&grotto));
     }
-
 }

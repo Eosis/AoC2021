@@ -1,4 +1,4 @@
-use std::env::var;
+
 use std::fmt::{Display, Formatter};
 use std::fs::read_to_string;
 use std::path::Path;
@@ -8,7 +8,7 @@ enum Variable {
     W,
     X,
     Y,
-    Z
+    Z,
 }
 
 impl From<&str> for Variable {
@@ -26,14 +26,14 @@ impl From<&str> for Variable {
 #[derive(Ord, PartialOrd, Eq, PartialEq, Debug, Clone, Copy)]
 enum Rhs {
     Literal(i64),
-    Variable(Variable)
+    Variable(Variable),
 }
 
 impl From<&str> for Rhs {
     fn from(input: &str) -> Self {
         match input {
             "w" | "x" | "y" | "z" => Rhs::Variable(input.into()),
-            _ => Rhs::Literal(input.parse().unwrap())
+            _ => Rhs::Literal(input.parse().unwrap()),
         }
     }
 }
@@ -45,7 +45,7 @@ enum Instruction {
     Mul(Variable, Rhs),
     Div(Variable, Rhs),
     Mod(Variable, Rhs),
-    Eql(Variable, Rhs)
+    Eql(Variable, Rhs),
 }
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Debug, Clone, Copy)]
@@ -57,7 +57,11 @@ struct RupInstruction {
 
 impl Display for RupInstruction {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{{x: {}, y: {}, div: {}}}", self.x_number, self.y_number, self.divide)
+        write!(
+            f,
+            "{{x: {}, y: {}, div: {}}}",
+            self.x_number, self.y_number, self.divide
+        )
     }
 }
 
@@ -92,22 +96,18 @@ impl Display for Computer {
     }
 }
 
+#[allow(dead_code)]
 impl Computer {
     fn new() -> Self {
-        Computer {
-            w: 0,
-            x: 0,
-            y: 0,
-            z: 0
-        }
+        Computer { w: 0, x: 0, y: 0, z: 0 }
     }
 
     fn run_normal(&mut self, instructions: &[Instruction], input: Vec<i64>) -> Option<i64> {
         let mut input = input.into_iter();
-        for (i, instruction) in instructions.iter().enumerate() {
+        for (_i, instruction) in instructions.iter().enumerate() {
             // println!("{:04}: {}", i, self);
             if self.run_normal_instruction(*instruction, &mut input).is_err() {
-                return None
+                return None;
             }
         }
         Some(self.z)
@@ -119,7 +119,7 @@ impl Computer {
             Rhs::Variable(Variable::W) => self.w,
             Rhs::Variable(Variable::X) => self.x,
             Rhs::Variable(Variable::Y) => self.y,
-            Rhs::Variable(Variable::Z) => self.z
+            Rhs::Variable(Variable::Z) => self.z,
         }
     }
 
@@ -128,39 +128,41 @@ impl Computer {
             Variable::W => &mut self.w,
             Variable::X => &mut self.x,
             Variable::Y => &mut self.y,
-            Variable::Z => &mut self.z
+            Variable::Z => &mut self.z,
         }
     }
 
     fn inp_instruction<T>(&mut self, variable: Variable, mut input: T) -> Result<(), ()>
-        where T: Iterator<Item=i64> {
-        if  variable != Variable::W {
+    where
+        T: Iterator<Item = i64>,
+    {
+        if variable != Variable::W {
             panic!("Got an input that didn't go to w")
         }
-        let mut lhs = self.lhs_reference(variable);
+        let lhs = self.lhs_reference(variable);
         *lhs = input.next().unwrap();
         Ok(())
     }
 
     fn add_instruction(&mut self, variable: Variable, rhs: Rhs) -> Result<(), ()> {
         let rhs = self.deconstruct_rhs(rhs);
-        let mut lhs = self.lhs_reference(variable);
+        let lhs = self.lhs_reference(variable);
         *lhs += rhs;
         Ok(())
     }
 
     fn mul_instruction(&mut self, variable: Variable, rhs: Rhs) -> Result<(), ()> {
         let rhs = self.deconstruct_rhs(rhs);
-        let mut lhs = self.lhs_reference(variable);
+        let lhs = self.lhs_reference(variable);
         *lhs *= rhs;
         Ok(())
     }
 
     fn div_instruction(&mut self, variable: Variable, rhs: Rhs) -> Result<(), ()> {
         let rhs = self.deconstruct_rhs(rhs);
-        let mut lhs = self.lhs_reference(variable);
+        let lhs = self.lhs_reference(variable);
         if rhs < 0 {
-            return Err(())
+            return Err(());
         }
         *lhs /= rhs;
         Ok(())
@@ -168,7 +170,7 @@ impl Computer {
 
     fn mod_instruction(&mut self, variable: Variable, rhs: Rhs) -> Result<(), ()> {
         let rhs = self.deconstruct_rhs(rhs);
-        let mut lhs = self.lhs_reference(variable);
+        let lhs = self.lhs_reference(variable);
         if rhs < 0 {
             return Err(());
         }
@@ -178,7 +180,7 @@ impl Computer {
 
     fn eql_instruction(&mut self, variable: Variable, rhs: Rhs) -> Result<(), ()> {
         let rhs = self.deconstruct_rhs(rhs);
-        let mut lhs = self.lhs_reference(variable);
+        let lhs = self.lhs_reference(variable);
         if *lhs == rhs {
             *lhs = 1;
         } else {
@@ -188,34 +190,38 @@ impl Computer {
     }
 
     fn run_normal_instruction<T>(&mut self, instruction: Instruction, input: T) -> Result<(), ()>
-    where T: Iterator<Item=i64> {
+    where
+        T: Iterator<Item = i64>,
+    {
         match instruction {
             Instruction::Inp(variable) => self.inp_instruction(variable, input),
             Instruction::Add(variable, rhs) => self.add_instruction(variable, rhs),
             Instruction::Mul(variable, rhs) => self.mul_instruction(variable, rhs),
             Instruction::Div(variable, rhs) => self.div_instruction(variable, rhs),
             Instruction::Mod(variable, rhs) => self.mod_instruction(variable, rhs),
-            Instruction::Eql(variable, rhs) => self.eql_instruction(variable, rhs)
+            Instruction::Eql(variable, rhs) => self.eql_instruction(variable, rhs),
         }
     }
 
     fn run_rups(&mut self, instructions: &[RupInstruction], input: Vec<i64>) -> Option<i64> {
         let mut input = input.into_iter();
-        for (i, instruction) in instructions.iter().enumerate() {
+        for (_i, instruction) in instructions.iter().enumerate() {
             // println!("{:04}: {}", i, self);
             if self.run_rup_instruction(*instruction, &mut input).is_err() {
-                return None
+                return None;
             }
         }
         Some(self.z)
     }
 
     fn run_rup_instruction<T>(&mut self, instruction: RupInstruction, mut input: T) -> Result<(), ()>
-        where T: Iterator<Item=i64> {
+    where
+        T: Iterator<Item = i64>,
+    {
         let RupInstruction {
             x_number,
             y_number,
-            divide
+            divide,
         } = instruction;
         if self.z < 0 {
             println!("Z was less than 0...");
@@ -253,12 +259,10 @@ fn parse_from_file<T: AsRef<Path>>(filename: T) -> Input {
 }
 
 fn parse_from_str(input: &str) -> Input {
-    input
-        .lines()
-        .map(|line| line.into())
-        .collect()
+    input.lines().map(|line| line.into()).collect()
 }
 
+#[allow(dead_code)]
 fn parse_from_str_to_rups(input: &str) -> Vec<RupInstruction> {
     input
         .lines()
@@ -275,7 +279,7 @@ fn parse_from_str_to_rups(input: &str) -> Vec<RupInstruction> {
             };
             let x_number = if let Instruction::Add(Variable::X, Rhs::Literal(n)) = Instruction::from(x_ins) {
                 n
-             } else {
+            } else {
                 panic!("You wot? {:?}", Instruction::from(x_ins))
             };
             let y_number = if let Instruction::Add(Variable::Y, Rhs::Literal(n)) = Instruction::from(y_ins) {
@@ -287,7 +291,7 @@ fn parse_from_str_to_rups(input: &str) -> Vec<RupInstruction> {
             RupInstruction {
                 x_number,
                 y_number,
-                divide
+                divide,
             }
         })
         .collect()
@@ -323,9 +327,7 @@ mod tests {
         let rup_instructions = parse_from_str_to_rups(EXAMPLE_PROGRAM);
         let mut rng = rand::thread_rng();
         for _ in 0..5 {
-            let input: Vec<i64> = (0..14)
-                .map(|_| rng.gen_range(1..=9))
-                .collect();
+            let input: Vec<i64> = (0..14).map(|_| rng.gen_range(1..=9)).collect();
             let mut normal_computer = Computer::new();
             let mut rup_computer = Computer::new();
             println!("Trying out {:?}", input);
@@ -373,10 +375,8 @@ mod tests {
         //     9,
         // ];
         // let input = vec![3,9,4,9,4,1,9,5,7,9,9,9,7,9];
-        let input = vec![1, 3, 1,6,1,1,5,1,1,3,9,6,1,7];
+        let input = vec![1, 3, 1, 6, 1, 1, 5, 1, 1, 3, 9, 6, 1, 7];
         let mut rup_computer = Computer::new();
-        assert_eq!(
-            rup_computer.run_rups(&rup_instructions, input), Some(0)
-        )
+        assert_eq!(rup_computer.run_rups(&rup_instructions, input), Some(0))
     }
 }

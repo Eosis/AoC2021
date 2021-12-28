@@ -1,4 +1,4 @@
-use bitvec::prelude::*;
+
 use hashbrown::HashSet;
 use regex::Regex;
 use std::fs::read_to_string;
@@ -17,12 +17,13 @@ struct Cuboid {
     z_range: (i64, i64),
 }
 
+#[allow(dead_code)]
 impl Cuboid {
     fn new(x_range: (i64, i64), y_range: (i64, i64), z_range: (i64, i64)) -> Cuboid {
         Cuboid {
             x_range,
             y_range,
-            z_range
+            z_range,
         }
     }
 }
@@ -78,7 +79,7 @@ fn instruction_from_line(line: &str) -> Instruction {
                 caps.get(6).and_then(|val| val.as_str().parse().ok()).unwrap(),
                 caps.get(7).and_then(|val| val.as_str().parse().ok()).unwrap(),
             ),
-        }
+        },
     }
 }
 
@@ -98,8 +99,9 @@ pub fn part_one(input: Input) -> usize {
         .flat_map(|instruction| {
             let cuboid = instruction.cuboid;
             (cuboid.x_range.0..=cuboid.x_range.1).flat_map(move |x| {
-                (cuboid.y_range.0..=cuboid.y_range.1)
-                    .flat_map(move |y| (cuboid.z_range.0..=cuboid.z_range.1).map(move |z| (instruction.action, (x, y, z))))
+                (cuboid.y_range.0..=cuboid.y_range.1).flat_map(move |y| {
+                    (cuboid.z_range.0..=cuboid.z_range.1).map(move |z| (instruction.action, (x, y, z)))
+                })
             })
         });
     for action in actions {
@@ -118,10 +120,16 @@ pub fn part_two(_input: Input) -> usize {
 }
 
 fn count_on(cuboids: &HashSet<Cuboid>) -> usize {
-    cuboids.iter()
-        .map(|Cuboid { x_range: (x1, x2), y_range: (y1, y2), z_range: (z1, z2) }|
-            usize::try_from(((*x2 - *x1 + 1) * (*y2 - *y1 + 1) * (*z2 - *z1 + 1))).unwrap()
-        ).sum()
+    cuboids
+        .iter()
+        .map(
+            |Cuboid {
+                 x_range: (x1, x2),
+                 y_range: (y1, y2),
+                 z_range: (z1, z2),
+             }| usize::try_from((*x2 - *x1 + 1) * (*y2 - *y1 + 1) * (*z2 - *z1 + 1)).unwrap(),
+        )
+        .sum()
 }
 
 #[cfg(test)]
@@ -157,19 +165,16 @@ mod tests {
 
     #[test]
     fn test_on_size_from_ranges() {
-        let cuboids: HashSet<_> = vec![
-            Cuboid::new((0, 0), (0, 0), (0, 0))
-        ].into_iter().collect();
+        let cuboids: HashSet<_> = vec![Cuboid::new((0, 0), (0, 0), (0, 0))].into_iter().collect();
         assert_eq!(count_on(&cuboids), 1);
-        let cuboids: HashSet<_> = vec![
-            Cuboid::new((-1, 1), (-1, 1), (-1, 1))
-        ].into_iter().collect();
+        let cuboids: HashSet<_> = vec![Cuboid::new((-1, 1), (-1, 1), (-1, 1))].into_iter().collect();
         assert_eq!(count_on(&cuboids), 27);
         let cuboids: HashSet<_> = vec![
             Cuboid::new((-1, 1), (-1, 1), (-1, 1)),
             Cuboid::new((-10, -8), (-10, -8), (-10, -8)),
-
-        ].into_iter().collect();
+        ]
+        .into_iter()
+        .collect();
         assert_eq!(count_on(&cuboids), 27 * 2);
     }
 
@@ -178,14 +183,20 @@ mod tests {
         let base_instruction = Instruction {
             action: Action::On,
             cuboid: Cuboid {
-                x_range: (-1, 1), y_range: (-1, 1), z_range: (-1, 1),
-            }};
-        let mut on_cuboids: HashSet<Cuboid> = vec![base_instruction.cuboid].into_iter().collect();
-        let off_instruction = Instruction {
+                x_range: (-1, 1),
+                y_range: (-1, 1),
+                z_range: (-1, 1),
+            },
+        };
+        let on_cuboids: HashSet<Cuboid> = vec![base_instruction.cuboid].into_iter().collect();
+        let _off_instruction = Instruction {
             action: Action::Off,
             cuboid: Cuboid {
-                x_range: (1, 3), y_range: (1, 3), z_range: (1, 3),
-            }};
+                x_range: (1, 3),
+                y_range: (1, 3),
+                z_range: (1, 3),
+            },
+        };
         //apply_off_instruction(&mut on_cuboids, off_instruction.cuboid);
         assert_eq!(count_on(&on_cuboids), 8);
     }

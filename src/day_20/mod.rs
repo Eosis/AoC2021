@@ -70,6 +70,7 @@ fn number_from_offset((y, x): (usize, usize), grid: &Grid) -> usize {
     .unwrap()
 }
 
+#[allow(dead_code)]
 fn print_grid(grid: &Grid) {
     for y in 0..grid.len() {
         println!();
@@ -80,7 +81,7 @@ fn print_grid(grid: &Grid) {
     println!();
 }
 
-fn set_border(grid: &mut Grid, iteration: usize, bitmap: &BitVec) {
+fn set_border(grid: &mut Grid, iteration: usize, _bitmap: &BitVec) {
     let to_set = if iteration % 2 == 1 { false } else { true };
     for x in 0..grid[0].len() {
         grid[0][x] = to_set;

@@ -1,6 +1,4 @@
 use hashbrown::HashMap;
-use std::fs::read_to_string;
-use std::path::Path;
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct Game {
@@ -43,16 +41,7 @@ pub fn solve_part_2() -> Result<(), ()> {
     Ok(())
 }
 
-fn parse_from_file<T: AsRef<Path>>(filename: T) -> Input {
-    let input = read_to_string(filename).unwrap();
-    parse_from_str(&input)
-}
-
-fn parse_from_str(input: &str) -> Input {
-    unimplemented!();
-}
-
-fn iterate_game(mut game: Game) -> (usize, usize) {
+fn iterate_game(game: Game) -> (usize, usize) {
     let mut rolls = 0;
     let mut dice_iter = (1usize..=100usize).cycle();
     let Game {
@@ -60,7 +49,7 @@ fn iterate_game(mut game: Game) -> (usize, usize) {
         mut player_two,
         mut player_one_score,
         mut player_two_score,
-        mut target,
+        target,
         ..
     } = game;
 

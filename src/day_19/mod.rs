@@ -24,7 +24,6 @@ impl Sub for Point {
 }
 
 type Input = HashMap<usize, Vec<Point>>;
-type Scanner = Vec<Point>;
 type SolvedScanner = (Point, Vec<Point>);
 type Solved = HashMap<usize, (Point, Vec<Point>)>;
 pub fn solve_part_1() -> Result<(), ()> {
